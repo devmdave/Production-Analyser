@@ -92,6 +92,13 @@ class CustomListViewDialog(QDialog):
 class Dialog:
     def __init__(self):
         pass
+    def show_file_not_found_error(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Automated Production Analyser")
+        msg.setText("Sorry, We are unable to load the data at this moment.\n")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
     def show_success_data_loaded(self):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)

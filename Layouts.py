@@ -57,9 +57,9 @@ class WorkerThread(QThread):
             plc = my_plc.Plc('192.168.0.10')
             tags_data = plc.read_cycletime_tags()
             dw = my_plc.data_writer()
-            dw.write_to_excel(tags_data)
+            dw.write_to_excel(tags_data,dw.CYCLETIME_BACKUP_DIR)
         except Exception as e:
-            pass
+            print("Exception occured in Worker Thread:\n" + str(e))
 
         time.sleep(3)  # Simulate a long task
         self.finished.emit()
@@ -196,10 +196,6 @@ class MyWindow(QMainWindow):
         self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) # Placeholder action
                 
         setting_menu.addAction(self.get_backup_time)
-
-       
-        
-
 
         self.edit_cycletime_tag_action.triggered.connect(lambda: edit_cyctime_win.show())
         self.edit_faultdelay_tag_action.triggered.connect(lambda: edit_fault_delay_win.show())
@@ -696,8 +692,8 @@ class MyWindow(QMainWindow):
         self.Dialog = Dialog()
         if response == MyWindow.EMPTY_DATAFRAME:
             self.Dialog.show_no_tags_error()
-        # elif response == MyWindow.LOAD_DATA_FAILED:
-        #     self.Dialog.show_file_not_found_error()
+        elif response == MyWindow.LOAD_DATA_FAILED:
+            self.Dialog.show_file_not_found_error()
         elif response == MyWindow.LOAD_DATA_SUCCESS:
             self.Dialog.show_success_data_loaded()
 
@@ -723,5 +719,8 @@ class MyWindow(QMainWindow):
                         continue  # Skip non-numeric cells
 
             # Highlight the max cell
-            if max_row != -1:
+            if max_row != -1 and max_val != 0:
                 table.item(max_row, col).setBackground(QColor(255, 0, 0))  # Red
+
+
+   

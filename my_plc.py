@@ -24,6 +24,7 @@ class Plc:
             self.plc_status = False
 
     def read_cycletime_tags(self):
+        print("reading cycle time tags line 27 of my_plc.py ")
         # step-1 : read the json
         tags_data = {}
         try:
@@ -179,6 +180,7 @@ class data_writer:
         pass
 
     def write_to_excel(self, tags_data,directory):
+        print("at line 183 write_to_excel in my_plc.py")
         os.makedirs(directory, exist_ok=True)
         # Convert dictionary to DataFrame
         if len(tags_data) > 0:

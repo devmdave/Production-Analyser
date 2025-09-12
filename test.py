@@ -1,62 +1,31 @@
-import sys
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QPushButton,
-    QVBoxLayout, QHBoxLayout, QLabel
-)
-from PyQt5.QtCore import Qt
+import json
+from pycomm3 import LogixDriver
+# step-1 : read the json
+tags_data = {}
+try:
+    file_path = "plc_custom_user_tags\\cycle_time_tags.json"
+    with open(file_path, "r") as file:
+        data = json.load(file)
 
-class Window1(QWidget):
-    def __init__(self, navigate_to_window2):
-        super().__init__()
-        layout = QVBoxLayout()
-        btn = QPushButton("Go to Window 2")
-        btn.clicked.connect(navigate_to_window2)
-        layout.addWidget(btn)
-        self.setLayout(layout)
+    # print(data)
+    tags = []  # tag list is a requirement
+    stations = []
+    if len(data) > 0:
+        # step-2 : generate a taglist from the json data to read it
+        for i in data:
+            tags.append(data[i][0])
+            stations.append(i)
+            
+        with LogixDriver('192.168.0.10') as plc:
+            if plc.connected:
+                for index, tag in enumerate(tags):
+                    tags_data[stations[index]] = 500                         
+            else:
+                pass
+except Exception as e:
+    print("Exception occured:")      
 
-class Window2(QWidget):
-    def __init__(self, navigate_back):
-        super().__init__()
-        layout = QVBoxLayout()
 
-        # Header bar with back button
-        header = QHBoxLayout()
-        back_btn = QPushButton("← Back")
-        back_btn.clicked.connect( navigate_back)
-        title = QLabel("Window 2")
-        title.setAlignment(Qt.AlignCenter)
 
-        header.addWidget(back_btn)
-        header.addStretch()
-        header.addWidget(title)
-        header.addStretch()
 
-        layout.addLayout(header)
-
-        # Content
-        content = QLabel("This is Window 2")
-        content.setAlignment(Qt.AlignCenter)
-        layout.addWidget(content)
-
-        self.setLayout(layout)
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Navigation Example")
-        self.setGeometry(100, 100, 400, 300)
-        self.show_window1()
-
-    def show_window1(self):
-        self.window1 = Window1(self.show_window2)
-        self.setCentralWidget(self.window1)
-
-    def show_window2(self):
-        self.window2 = Window2(self.show_window1)
-        self.setCentralWidget(self.window2)
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    mainWin = MainWindow()
-    mainWin.show()
-    sys.exit(app.exec_())
+print(tags_data)
