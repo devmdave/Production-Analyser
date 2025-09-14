@@ -117,6 +117,7 @@ class MyWindow(QMainWindow):
         super().__init__()
         self.active_dashboard = True
         self.setWindowTitle("Production Analyser")
+        self.setFixedSize(1200,600)
         self.setGeometry(100, 100, 1200, 600)
         self.setWindowIcon(QIcon("icon.png"))  # Repla
         self.cycle_time = 0
@@ -229,7 +230,7 @@ class MyWindow(QMainWindow):
         logo_label.setScaledContents(True)
 
         # Text label setup
-        text_label = QLabel("Production Analyser")
+        text_label = QLabel("Dashboard")
         text_label.setStyleSheet("color:#002A4D; font-size: 18px; font-weight: bold;")
 
         header_layout.setSpacing(10)
@@ -255,7 +256,7 @@ class MyWindow(QMainWindow):
         # DateTime Display (auto-updating)
         self.datetime_label = QLabel()
         self.datetime_label.setFont(QFont("Segoe UI", 10))
-        self.datetime_label.setStyleSheet("color: #37474f; margin-bottom: 10px;")
+        self.datetime_label.setStyleSheet("color: #37474f;")
         self.datetime_label.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(self.datetime_label)
         self.update_datetime()
@@ -328,9 +329,14 @@ class MyWindow(QMainWindow):
         footer.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(footer)
 
+    def get_last_bcktime(self):
+        return f"Last Backup Synced: {os.getenv("LAST_BACKUP_TIME")}" if os.getenv("LAST_BACKUP_TIME") else "No backup time found."
+
+
+
     def update_datetime(self):
         now = QDateTime.currentDateTime()
-        self.datetime_label.setText(now.toString("dddd, dd MMMM yyyy - hh:mm:ss AP"))
+        self.datetime_label.setText(now.toString("dddd, dd MMMM yyyy - hh:mm:ss AP") + f"\n\n {self.get_last_bcktime()}")
 
     def cycletime_backup_layout(self):
         self.timer.stop()
@@ -368,43 +374,16 @@ class MyWindow(QMainWindow):
         )
         # Create control panel layout
         control_panel = QHBoxLayout()
-        # Create cycle time input
-        # cycle_label = QLabel("Cycle Time:")
-        # cycle_label.setFont(QFont('Arial', 10, QFont.Bold))
-        # self.cycle_input = QLineEdit()
-        # self.cycle_input.setFixedWidth(50)
-        # self.cycle_input.setText(str(self.cycle_time))  # Default value
 
-        # self.cycle_input.returnPressed.connect(self.load_data_to_veiw)
-        # Set input validation for cycle time
-        # self.cycle_input.setValidator(QIntValidator(0, 1000, self))
-
-        # Create update button
-        # update_button = QPushButton("TODAY'S DATA")
-        # update_button.clicked.connect(self.start_task)
-        # show_current_cycletime = QPushButton("BACKUP DATA")
-        # update_button.clicked.connect(self.on_update_clicked)
-        # Time picker setupw
-
-        # self.time_edit = CustomTimeEdit()
-        # self.time_edit.setDisplayFormat("hh:mm")  # You can customize this format
-        # self.time_edit.setTime(QTime.currentTime())  # Set current time as default
-        # # Button setup
-        # self.button = QPushButton("SET BACKUP TIME")
-        # self.button.clicked.connect(self.set_backuptime)
 
         # file name display
         self.file_name_label = QLabel(f"File: {"No file selected"}")
         self.file_name_label.setFont(QFont("Arial", 10, QFont.Bold))
         self.file_name_label.setStyleSheet("padding: 5px;")
 
-        # Add widgets to control panel
-        # spacer = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        # control_panel.addWidget(cycle_label,alignment=Qt.AlignLeft)
-        # control_panel.addWidget(self.cycle_input,alignment=Qt.AlignLeft)
+
         control_panel.addWidget(self.file_name_label, alignment=Qt.AlignLeft)
-        # control_panel.addWidget(self.button,alignment=Qt.AlignRight)
-        # control_panel.addWidget(self.time_edit,alignment=Qt.AlignRight)
+
 
         # Layout
         layout = QVBoxLayout(self.central_widget)

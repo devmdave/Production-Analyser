@@ -50,6 +50,7 @@ import pandas as pd
 #             print("Failed to connect to PLC")
 #     return tags_data
 
+#setting production backup service pid in the env
 subprocess.run(f'setx PRODUCTION_BACKUP_PID "{os.getpid()}"', shell=True)
 
 parsed_time = None
@@ -61,6 +62,19 @@ try:
     subprocess.run(f'setx PRODUCTION_BACKUP_TIME "{parsed_time}"', shell=True)
 except IndexError:
     saved_time = os.getenv("PRODUCTION_BACKUP_TIME")
+
+
+def update_last_backtime():
+    # Get current date and time
+    now = datetime.datetime.now()
+    # Format it as "14 Sep 2025, 03:45 PM"
+    formatted_time = now.strftime("%d %b %Y, %I:%M %p")
+    #setting the backup time in the env
+    subprocess.run(f'setx LAST_BACKUP_TIME "{formatted_time}"', shell=True)
+
+    
+
+
 
 # Function to save PLC data to an Excel file
  # This function takes a dictionary of PLC data, converts it to a pandas DataFrame, and saves it to an Excel file named 'data.xlsx'.
@@ -75,6 +89,9 @@ def save_to_excel(tags_data):
     today_str = datetime.datetime.now().strftime('%d-%m-%Y')
     with pd.ExcelWriter(f'./CycleTimeBackup/{today_str}.xlsx') as writer:
         df.to_excel(writer, sheet_name=today_str, index=True)
+    
+    update_last_backtime()
+
 
 # Function to wait until the target time
 # This function continuously checks the current time and returns when it matches the target time.
