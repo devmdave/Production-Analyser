@@ -237,28 +237,45 @@ class MyWindow(QMainWindow):
         # Add widgets to layout
         header_layout.addWidget(logo_label)
         header_layout.addWidget(text_label)
-
-        verticalSpacer = QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)
-        #verticalSpacer1 = QSpacerItem(50, 50, QSizePolicy.Minimum, QSizePolicy.Minimum)
-        horizontalSpacer = QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Maximum)
-        main_layout.addItem(verticalSpacer)
         main_layout.addLayout(header_layout)
-        
+
+        #header_label
+        header_label = QLabel("Live Dashboard Metrics")
+        header_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
+        header_label.setStyleSheet("color:#002A4D;")      
+        main_layout.addWidget(header_label, alignment=Qt.AlignCenter)
+         
 
         # Live Status Bar
         self.status_label = QLabel("PLC Connection Status: Running")
         self.status_label.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        self.status_label.setStyleSheet("color: #ffffff; background: #388e3c; border-radius:15px; " 
+        self.status_label.setStyleSheet("color: #ffffff; background: #388e3c; border-radius:5px; " 
                                         "padding: 8px; ")
-        self.status_label.setFixedWidth(300)
+        self.status_label.setFixedWidth(400)
         self.status_label.setAlignment(Qt.AlignCenter)
 
+
         # DateTime Display (auto-updating)
+        datetime_layout = QVBoxLayout()
         self.datetime_label = QLabel()
-        self.datetime_label.setFont(QFont("Segoe UI", 10))
-        self.datetime_label.setStyleSheet("color: #37474f;")
+        self.datetime_label.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        self.datetime_label.setStyleSheet("color: #ffffff; background: #002A4D; border-radius:5px; " 
+                                        "padding: 8px;")
+        self.datetime_label.setFixedWidth(400)
         self.datetime_label.setAlignment(Qt.AlignCenter)
-        main_layout.addWidget(self.datetime_label)
+        datetime_layout.addWidget(self.datetime_label, alignment=Qt.AlignCenter)
+
+
+        bcktime_layout = QVBoxLayout()
+        self.bcktime_label = QLabel()
+        self.bcktime_label.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        self.bcktime_label.setStyleSheet("color: #ffffff; background: #002A4D; border-radius:5px; " 
+                                        "padding: 8px;")
+        self.bcktime_label.setFixedWidth(400)
+        self.bcktime_label.setAlignment(Qt.AlignCenter)
+        self.bcktime_label.setText(self.get_last_bcktime())
+        bcktime_layout.addWidget(self.bcktime_label, alignment=Qt.AlignCenter)        
+
         self.update_datetime()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_datetime)
@@ -279,48 +296,11 @@ class MyWindow(QMainWindow):
         self.card_shiftB.show(cards_layout)
 
         main_layout.addLayout(cards_layout)
-
-        # Navigation Buttons
-        nav_layout = QHBoxLayout()
-        nav_layout.setSpacing(30)
-        nav_layout.setAlignment(Qt.AlignCenter)
-
-        btn1 = QPushButton("Backup Cycle Time")
-        btn2 = QPushButton("Current Cycle Time")
-        btn3 = QPushButton("Station Faults")
-        btn4 = QPushButton("Export Report")
-
-        for btn, color in zip(
-            [btn1, btn2, btn3, btn4],
-            ["#002A4D", "#002A4D", "#002A4D", "#002A4D"]
-        ):
-            btn.setMinimumHeight(40)
-            btn.setMinimumWidth(170)
-            btn.setFont(QFont("Segoe UI", 10, QFont.Bold))
-            btn.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {color};
-                    color: white;
-                    border-radius: 10px;
-                    padding: 12px;
-                }}
-                QPushButton:hover {{
-                    background-color: #C6E5F5;
-                    color: #002A4D;
-                    border: 1px solid #002A4D;
-
-                }}
-            """)
-            nav_layout.addWidget(btn)
-
-        main_layout.addLayout(nav_layout)
+        main_layout.addLayout(datetime_layout)
+        # main_layout.addLayout(bcktime_layout)
         main_layout.addLayout(status_layout)
-        #main_layout.addItem(verticalSpacer1)
-        
                 
-        status_layout.addItem(horizontalSpacer)
-        status_layout.addWidget(self.status_label)
-
+        status_layout.addWidget(self.status_label, alignment=Qt.AlignCenter)
 
         # Footer
         footer = QLabel("© 2025 Madhav Dave. All rights reserved.")
@@ -336,7 +316,7 @@ class MyWindow(QMainWindow):
 
     def update_datetime(self):
         now = QDateTime.currentDateTime()
-        self.datetime_label.setText(now.toString("dddd, dd MMMM yyyy - hh:mm:ss AP") + f"\n\n {self.get_last_bcktime()}")
+        self.datetime_label.setText("Current Time: "+now.toString("dd MMMM yyyy - hh:mm:ss AP")+"\n\nLast Backup Synced: "+os.getenv("LAST_BACKUP_TIME") if os.getenv("LAST_BACKUP_TIME") else "No backup time found.")
 
     def cycletime_backup_layout(self):
         self.timer.stop()

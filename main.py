@@ -23,7 +23,7 @@ class MyApplication(MyWindow):
         self.view_current_fault_action.triggered.connect(lambda:self.show_fault_delay_layout())
         self.view_cycle_action.triggered.connect(lambda: self.cycletime_backup_layout())
         self.status_label.setText("Plc Status: Connecting....")
-        self.status_label.setStyleSheet("color: #ffffff; background: #002A4D; border-radius:15px;padding: 8px;")
+        self.status_label.setStyleSheet("color: #ffffff; background: #002A4D; border-radius:5px ;padding: 8px;")
         # self.card_prod.update_value(tags_data[plc.TOTAL_PRODUCTION_TAG])
         # self.card_delay.update_value(tags_data[plc.TOTAL_DELAY_TAG])
         # self.card_shiftA.update_value(tags_data[plc.SHIFT_A_PRODUCTION])
@@ -53,14 +53,14 @@ class MyApplication(MyWindow):
                 #     conn_status = True
                 if updated == None:
                     self.status_label.setText("Plc Status: Connected!")
-                    self.status_label.setStyleSheet("color: #ffffff; background:lightgreen; border-radius:10px;padding: 8px; ")
+                    self.status_label.setStyleSheet("color: #ffffff; background:lightgreen; border-radius:5px;padding: 8px; ")
                     updated = True
                         
             elif not tags_data:
                 if updated == None:
                     #run when plc connection is failed 
                     self.status_label.setText("Plc Status: Not Connected!")
-                    self.status_label.setStyleSheet("color: #ffffff; background: #FF0000; border-radius:10px; padding: 8px; ")
+                    self.status_label.setStyleSheet("color: #ffffff; background: #FF0000; border-radius:5px; padding: 8px; ")
                     updated = True
    
             # while True:
