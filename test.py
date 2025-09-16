@@ -47,6 +47,19 @@ class Dashboard(QWidget):
         self.last_backup_time = datetime.now() - timedelta(hours=2, minutes=15)
         self.plc_connected = False
 
+        # Store original window size for scaling
+        self.original_size = (850, 520)
+        self.original_fonts = {
+            'heading': 24,
+            'time': 22,
+            'backup': 14,
+            'plc': 14,
+            'log_title': 18,
+            'param_title': 12,
+            'param_value': 22,
+            'button': 10
+        }
+
         self._init_ui()
         self._init_timers()
         self._log("Dashboard initialized.")
@@ -56,23 +69,34 @@ class Dashboard(QWidget):
         main_layout.setContentsMargins(15, 15, 15, 15)
         main_layout.setSpacing(15)
 
+        # Main heading
+        heading = QLabel("Real Time Metrics")
+        heading.setFont(QFont("Segoe UI", 24, QFont.Bold))
+        heading.setAlignment(Qt.AlignCenter)
+        heading.setStyleSheet("color: #ecf0f1;")
+        main_layout.addWidget(heading)
+
         # Top info panel
         info_panel = QHBoxLayout()
         info_panel.setSpacing(20)
 
         # Current Time
         self.time_label = QLabel()
-        self.time_label.setFont(QFont("Segoe UI", 22, QFont.Bold))
+        self.time_label.setFont(QFont("Segoe UI", 15, QFont.Bold))
         self.time_label.setAlignment(Qt.AlignCenter)
         self.time_label.setFixedWidth(220)
-        info_panel.addWidget(self._create_info_box("Current Time", self.time_label))
+        time_box = self._create_info_box("Current Time", self.time_label)
+        time_box.setFixedWidth(250)
+        info_panel.addWidget(time_box)
 
         # Last Backup Time
         self.backup_label = QLabel()
-        self.backup_label.setFont(QFont("Segoe UI", 14))
+        self.backup_label.setFont(QFont("Segoe UI", 15))
         self.backup_label.setAlignment(Qt.AlignCenter)
         self.backup_label.setFixedWidth(220)
-        info_panel.addWidget(self._create_info_box("Last Backup", self.backup_label))
+        backup_box = self._create_info_box("Last Backup", self.backup_label)
+        backup_box.setFixedWidth(250)
+        info_panel.addWidget(backup_box)
 
         # PLC Connection Status
         plc_status_layout = QHBoxLayout()
@@ -88,12 +112,7 @@ class Dashboard(QWidget):
         plc_status_widget.setLayout(plc_status_layout)
         info_panel.addWidget(self._create_info_box("PLC Connection", plc_status_widget))
 
-        # Light/Dark Mode Toggle Button
-        self.mode_toggle_btn = QPushButton("Switch to Light Mode")
-        self.mode_toggle_btn.setFixedSize(140, 36)
-        self.mode_toggle_btn.setFont(QFont("Segoe UI", 10, QFont.Bold))
-        self.mode_toggle_btn.clicked.connect(self._toggle_mode)
-        info_panel.addWidget(self.mode_toggle_btn, alignment=Qt.AlignRight | Qt.AlignVCenter)
+        # Light/Dark Mode Toggle Button moved to log section
 
         main_layout.addLayout(info_panel)
 
@@ -112,7 +131,7 @@ class Dashboard(QWidget):
         param_names = ["Temperature (°C)", "Pressure (bar)", "Humidity (%)", "Motor Speed (RPM)"]
         for i, name in enumerate(param_names):
             label_value = QLabel("0")
-            label_value.setFont(QFont("Segoe UI", 26, QFont.Bold))
+            label_value.setFont(QFont("Segoe UI", 22, QFont.Bold))
             label_value.setAlignment(Qt.AlignCenter)
             label_value.setStyleSheet("color: #ecf0f1;")
             label_value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -150,12 +169,27 @@ class Dashboard(QWidget):
         """)
         log_layout.addWidget(self.log_text)
 
+        # Buttons layout
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setSpacing(10)
+
         # Add a clear log button
         clear_log_btn = QPushButton("Clear Log")
         clear_log_btn.setFixedWidth(100)
         clear_log_btn.setFont(QFont("Segoe UI", 10, QFont.Bold))
         clear_log_btn.clicked.connect(self.log_text.clear)
-        log_layout.addWidget(clear_log_btn, alignment=Qt.AlignRight)
+        buttons_layout.addWidget(clear_log_btn)
+
+        # Light/Dark Mode Toggle Button moved here for smoother functioning
+        self.mode_toggle_btn = QPushButton("Switch to Light Mode")
+        self.mode_toggle_btn.setFixedSize(180, 36)
+        self.mode_toggle_btn.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        self.mode_toggle_btn.clicked.connect(self._toggle_mode)
+        buttons_layout.addWidget(self.mode_toggle_btn)
+
+        buttons_widget = QWidget()
+        buttons_widget.setLayout(buttons_layout)
+        log_layout.addWidget(buttons_widget, alignment=Qt.AlignRight)
 
         log_widget.setLayout(log_layout)
         bottom_layout.addWidget(log_widget, 2)
@@ -241,19 +275,19 @@ class Dashboard(QWidget):
             QFrame {
                 background-color: #2c3e50;
                 border-radius: 10px;
-                padding: 14px;
+                padding: 5px;
             }
         """)
         layout = QVBoxLayout()
-        layout.setSpacing(6)
         label = QLabel(title)
-        label.setFont(QFont("Segoe UI", 13, QFont.Bold))
+        label.setFont(QFont("Segoe UI", 10, QFont.Bold))
         label.setStyleSheet("color: #ecf0f1;")
         label.setAlignment(Qt.AlignCenter)
         layout.addWidget(label)
         layout.addWidget(widget)
         box.setLayout(layout)
         return box
+
 
     def _get_stylesheet(self):
         if self.dark_mode:
@@ -336,7 +370,7 @@ class Dashboard(QWidget):
                     QFrame {
                         background-color: #2c3e50;
                         border-radius: 10px;
-                        padding: 14px;
+                        padding: 5px;
                     }
                 """)
             else:
@@ -344,7 +378,7 @@ class Dashboard(QWidget):
                     QFrame {
                         background-color: #dfe6e9;
                         border-radius: 10px;
-                        padding: 14px;
+                        padding: 5px;
                     }
                 """)
 
