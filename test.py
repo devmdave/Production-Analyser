@@ -3,7 +3,7 @@ import random
 import psutil
 import json
 from datetime import datetime, timedelta
-
+from MockPLCServer.mock_plc import pycomm3
 from PyQt5.QtCore import Qt, QTimer, QTime
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap
 from PyQt5.QtWidgets import (
@@ -18,6 +18,8 @@ class Dashboard(QWidget):
         self.setWindowTitle("Professional Dashboard")
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
         self.resize(850, 520)
+
+        self.plc = pycomm3() 
 
         self.dark_mode = False
         self.setStyleSheet(self._get_stylesheet())
@@ -251,16 +253,15 @@ class Dashboard(QWidget):
             self._log("PLC disconnected.")
 
     def _update_parameters(self):
+        plc_res = self.plc.read_dashboard_tags()
         # Update parameter values from JSON or simulate if no value provided
         with open('config.json', 'r') as f:
             data = json.load(f)
         parameters = data.get('parameters', [])
-
         for param in parameters:
             name = param.get('name')
-            value = param.get('value', '0')
             if name in self.param_labels:
-                self.param_labels[name].setText(str(value))
+                self.param_labels[name].setText(str(plc_res[name]))
 
         # Simulate OEE update
         oee = random.uniform(50.0, 100.0)

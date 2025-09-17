@@ -1,3 +1,5 @@
+from cProfile import label
+from tkinter.tix import ListNoteBook
 from pycomm3 import LogixDriver
 import os
 import pandas as pd
@@ -108,19 +110,23 @@ class Plc:
 
     def read_dashboard_tags(self):
         try:
-            tags = [
-                Plc.TOTAL_PRODUCTION_TAG,
-                Plc.SHIFT_A_PRODUCTION,
-                Plc.SHIFT_B_PRODUCTION,
-                #Plc.TOTAL_DELAY_TAG,
-            ]
+            with open('config.json', 'r') as f:
+                data = json.load(f)
+
+            parameters = data.get('parameters', [])
+            tags = []
+            labels = []
+
+            for param in parameters:
+                tags.append(param.get('value', '0'))
+                labels.append(param.get('name'))
             # Dictionary to store the PLC data
             tags_data = {}
             # Connect to the PLC using LogixDriver
             with LogixDriver(self.ip) as self.plc:
                 if self.plc.connected:
-                    for tag in tags:
-                        tags_data[tag] = self.plc.read(tag).value
+                    for index,tag in enumerate(tags):
+                        tags_data[labels[index]] = self.plc.read(tag).value
                 else:
                     tags_data = None
         except Exception as e:
