@@ -2,8 +2,10 @@ import sys
 import random
 import psutil
 import json
+import time
+import threading
 from datetime import datetime, timedelta
-from MockPLCServer.mock_plc import pycomm3
+from my_plc import Plc
 from PyQt5.QtCore import Qt, QTimer, QTime
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap
 from PyQt5.QtWidgets import (
@@ -19,7 +21,7 @@ class Dashboard(QWidget):
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
         self.resize(850, 520)
 
-        self.plc = pycomm3() 
+        self.plc = Plc('192.168.0.10')
 
         self.dark_mode = False
         self.setStyleSheet(self._get_stylesheet())
@@ -42,6 +44,8 @@ class Dashboard(QWidget):
 
         self._init_ui()
         self._init_timers()
+        self.param_thread = threading.Thread(target=self._update_parameters, daemon=True)
+        self.param_thread.start()
         self._log("Dashboard initialized.")
 
     def _init_ui(self):
@@ -222,12 +226,6 @@ class Dashboard(QWidget):
         self.plc_timer.start(5000)
         self._update_plc_status()
 
-        # Update parameters every second
-        self.params_timer = QTimer()
-        self.params_timer.timeout.connect(self._update_parameters)
-        self.params_timer.start(1000)
-        self._update_parameters()
-
     def _update_time(self):
         now = QTime.currentTime()
         self.time_label.setText(now.toString("hh:mm:ss AP"))
@@ -253,21 +251,23 @@ class Dashboard(QWidget):
             self._log("PLC disconnected.")
 
     def _update_parameters(self):
-        plc_res = self.plc.read_dashboard_tags()
-        # Update parameter values from JSON or simulate if no value provided
-        with open('config.json', 'r') as f:
-            data = json.load(f)
-        parameters = data.get('parameters', [])
-        for param in parameters:
-            name = param.get('name')
-            if name in self.param_labels:
-                self.param_labels[name].setText(str(plc_res[name]))
+        while True:
+            plc_res = self.plc.read_dashboard_tags()
+            # Update parameter values from JSON or simulate if no value provided
+            with open('config.json', 'r') as f:
+                data = json.load(f)
+            parameters = data.get('parameters', [])
+            for param in parameters:
+                name = param.get('name')
+                if name in self.param_labels:
+                    self.param_labels[name].setText(str(plc_res[name]))
 
-        # Simulate OEE update
-        oee = random.uniform(50.0, 100.0)
-        self.oee_label.setText(f"{oee:.1f}")
+            # Simulate OEE update
+            oee = random.uniform(50.0, 100.0)
+            self.oee_label.setText(f"{oee:.1f}")
 
-        self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
+            self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
+            time.sleep(60)
 
     def _log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
