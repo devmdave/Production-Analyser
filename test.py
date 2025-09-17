@@ -4,34 +4,11 @@ import psutil
 from datetime import datetime, timedelta
 
 from PyQt5.QtCore import Qt, QTimer, QTime
-from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush
+from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
     QTextEdit, QFrame, QPushButton, QSizePolicy
 )
-
-
-class CircleIndicator(QWidget):
-    """A colored circle indicator for status."""
-    def __init__(self, diameter=18, parent=None):
-        super().__init__(parent)
-        self._color = QColor('gray')
-        self._diameter = diameter
-        self.setFixedSize(diameter, diameter)
-
-    def setColor(self, color):
-        self._color = QColor(color)
-        self.update()
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        pen = QPen(Qt.NoPen)
-        painter.setPen(pen)
-        brush = QBrush(self._color)
-        painter.setBrush(brush)
-        rect = self.rect()
-        painter.drawEllipse(rect)
 
 
 class Dashboard(QWidget):
@@ -41,7 +18,7 @@ class Dashboard(QWidget):
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
         self.resize(850, 520)
 
-        self.dark_mode = True
+        self.dark_mode = False
         self.setStyleSheet(self._get_stylesheet())
 
         self.last_backup_time = datetime.now() - timedelta(hours=2, minutes=15)
@@ -66,19 +43,55 @@ class Dashboard(QWidget):
 
     def _init_ui(self):
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(15, 15, 15, 15)
-        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(10)
+
+        # Top header with logo and heading
+        header_frame = QFrame()
+        header_frame.setFrameShape(QFrame.StyledPanel)
+        header_layout = QHBoxLayout()
+        header_layout.setSpacing(5)
+        header_layout.setAlignment(Qt.AlignLeft)
+
+        # Logo
+        logo_label = QLabel()
+        pixmap = QPixmap("logo.PNG")
+        logo_label.setPixmap(pixmap.scaled(48, 48, Qt.KeepAspectRatio))
+        header_layout.addWidget(logo_label)
+
+        # Right side: main heading and subheading
+        right_layout = QVBoxLayout()
+        right_layout.setSpacing(2)
 
         # Main heading
-        heading = QLabel("Real Time Metrics")
-        heading.setFont(QFont("Segoe UI", 24, QFont.Bold))
-        heading.setAlignment(Qt.AlignCenter)
-        heading.setStyleSheet("color: #ecf0f1;")
-        main_layout.addWidget(heading)
+        heading = QLabel("Production Analyser")
+        heading.setFont(QFont("Segoe UI", 20, QFont.Bold))
+        heading.setAlignment(Qt.AlignLeft)
+        right_layout.addWidget(heading)
+
+        # Subheading
+        subheading = QLabel("Real Time Metrics")
+        subheading.setFont(QFont("Segoe UI", 10))
+        subheading.setAlignment(Qt.AlignLeft)
+        right_layout.addWidget(subheading)
+
+        header_layout.addLayout(right_layout)
+
+        header_frame.setLayout(header_layout)
+        main_layout.addWidget(header_frame)
 
         # Top info panel
         info_panel = QHBoxLayout()
-        info_panel.setSpacing(20)
+        info_panel.setSpacing(15)
+
+        # O.E.E (%)
+        self.oee_label = QLabel("0.0")
+        self.oee_label.setFont(QFont("Segoe UI", 15))
+        self.oee_label.setAlignment(Qt.AlignCenter)
+        self.oee_label.setFixedWidth(220)
+        oee_box = self._create_info_box("O.E.E (%)", self.oee_label)
+        oee_box.setFixedWidth(250)
+        info_panel.addWidget(oee_box)
 
         # Current Time
         self.time_label = QLabel()
@@ -101,12 +114,9 @@ class Dashboard(QWidget):
         # PLC Connection Status
         plc_status_layout = QHBoxLayout()
         plc_status_layout.setAlignment(Qt.AlignCenter)
-        self.plc_indicator = CircleIndicator(18)
         self.plc_status_label = QLabel("Disconnected")
         self.plc_status_label.setFont(QFont("Segoe UI", 14))
-        self.plc_status_label.setStyleSheet("color: #e74c3c;")
-        plc_status_layout.addWidget(self.plc_indicator)
-        plc_status_layout.addSpacing(10)
+        self.plc_status_label.setStyleSheet("color: white; background-color: #FF0000; border-radius: 0px; padding: 4px 8px;")
         plc_status_layout.addWidget(self.plc_status_label)
         plc_status_widget = QWidget()
         plc_status_widget.setLayout(plc_status_layout)
@@ -117,23 +127,22 @@ class Dashboard(QWidget):
         main_layout.addLayout(info_panel)
 
         # Bottom layout: Four parameter frames + Log window
-        bottom_layout = QHBoxLayout()
-        bottom_layout.setSpacing(20)
+        bottom_layout = QVBoxLayout()
+        bottom_layout.setSpacing(15)
 
         # Four parameter frames
         params_widget = QWidget()
         params_layout = QGridLayout()
-        params_layout.setSpacing(20)
+        params_layout.setSpacing(15)
 
         # Create parameter frames
         self.param_labels = {}
 
-        param_names = ["Temperature (°C)", "Pressure (bar)", "Humidity (%)", "Motor Speed (RPM)"]
+        param_names = ["Total Delay (in mins)", "Total Production (in units)", "Shift A Production (in units)", "Shift B Production (in units)"]
         for i, name in enumerate(param_names):
             label_value = QLabel("0")
             label_value.setFont(QFont("Segoe UI", 22, QFont.Bold))
             label_value.setAlignment(Qt.AlignCenter)
-            label_value.setStyleSheet("color: #ecf0f1;")
             label_value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
             frame = self._create_info_box(name, label_value)
@@ -142,36 +151,26 @@ class Dashboard(QWidget):
             self.param_labels[name] = label_value
 
         params_widget.setLayout(params_layout)
-        bottom_layout.addWidget(params_widget, 3)
+        bottom_layout.addWidget(params_widget)
 
         # Log window
         log_widget = QWidget()
         log_layout = QVBoxLayout()
         log_layout.setContentsMargins(0, 0, 0, 0)
-        log_layout.setSpacing(10)
+        log_layout.setSpacing(5)
 
-        log_title = QLabel("System Log")
+        log_title = QLabel("Events")
         log_title.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        log_title.setAlignment(Qt.AlignCenter)
+        log_title.setAlignment(Qt.AlignLeft)
         log_layout.addWidget(log_title)
 
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
-        self.log_text.setStyleSheet("""
-            QTextEdit {
-                background-color: #1e1e2f;
-                color: #ecf0f1;
-                font-family: Consolas, monospace;
-                font-size: 11pt;
-                border-radius: 8px;
-                padding: 8px;
-            }
-        """)
         log_layout.addWidget(self.log_text)
 
         # Buttons layout
         buttons_layout = QHBoxLayout()
-        buttons_layout.setSpacing(10)
+        buttons_layout.setSpacing(5)
 
         # Add a clear log button
         clear_log_btn = QPushButton("Clear Log")
@@ -192,7 +191,7 @@ class Dashboard(QWidget):
         log_layout.addWidget(buttons_widget, alignment=Qt.AlignRight)
 
         log_widget.setLayout(log_layout)
-        bottom_layout.addWidget(log_widget, 2)
+        bottom_layout.addWidget(log_widget)
 
         main_layout.addLayout(bottom_layout)
 
@@ -239,30 +238,30 @@ class Dashboard(QWidget):
     def _update_plc_status(self):
         self.plc_connected = not self.plc_connected
         if self.plc_connected:
-            self.plc_indicator.setColor("#2ecc71")  # green
             self.plc_status_label.setText("Connected")
-            self.plc_status_label.setStyleSheet("color: #2ecc71;")
+            self.plc_status_label.setStyleSheet("color: white; background-color: #008000; border-radius: 0px; padding: 4px 8px;")
             self._log("PLC connected.")
         else:
-            self.plc_indicator.setColor("#e74c3c")  # red
             self.plc_status_label.setText("Disconnected")
-            self.plc_status_label.setStyleSheet("color: #e74c3c;")
+            self.plc_status_label.setStyleSheet("color: white; background-color: #FF0000; border-radius: 0px; padding: 4px 8px;")
             self._log("PLC disconnected.")
 
     def _update_parameters(self):
         # Simulate real-time parameter updates with random values
-        temp = random.uniform(20.0, 80.0)
-        pressure = random.uniform(1.0, 10.0)
-        humidity = random.uniform(30.0, 90.0)
-        motor_speed = random.randint(500, 3000)
+        delay = random.uniform(0, 100)
+        total_prod = random.randint(100, 1000)
+        shift_a = random.randint(50, 500)
+        shift_b = random.randint(50, 500)
+        oee = random.uniform(50.0, 100.0)
 
-        self.param_labels["Temperature (°C)"].setText(f"{temp:.1f}")
-        self.param_labels["Pressure (bar)"].setText(f"{pressure:.2f}")
-        self.param_labels["Humidity (%)"].setText(f"{humidity:.1f}")
-        self.param_labels["Motor Speed (RPM)"].setText(f"{motor_speed}")
+        self.param_labels["Total Delay (in mins)"].setText(f"{delay:.1f}")
+        self.param_labels["Total Production (in units)"].setText(f"{total_prod}")
+        self.param_labels["Shift A Production (in units)"].setText(f"{shift_a}")
+        self.param_labels["Shift B Production (in units)"].setText(f"{shift_b}")
+        self.oee_label.setText(f"{oee:.1f}")
 
-        self._log(f"Parameters updated: Temp={temp:.1f}°C, Pressure={pressure:.2f} bar, "
-                  f"Humidity={humidity:.1f}%, Motor Speed={motor_speed} RPM")
+        self._log(f"Parameters updated: Delay={delay:.1f} mins, Total Prod={total_prod} units, "
+                  f"Shift A={shift_a} units, Shift B={shift_b} units, O.E.E={oee:.1f}%")
 
     def _log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -271,17 +270,9 @@ class Dashboard(QWidget):
     def _create_info_box(self, title, widget):
         box = QFrame()
         box.setFrameShape(QFrame.StyledPanel)
-        box.setStyleSheet("""
-            QFrame {
-                background-color: #2c3e50;
-                border-radius: 10px;
-                padding: 5px;
-            }
-        """)
         layout = QVBoxLayout()
         label = QLabel(title)
         label.setFont(QFont("Segoe UI", 10, QFont.Bold))
-        label.setStyleSheet("color: #ecf0f1;")
         label.setAlignment(Qt.AlignCenter)
         layout.addWidget(label)
         layout.addWidget(widget)
@@ -301,7 +292,7 @@ class Dashboard(QWidget):
                     color: #ecf0f1;
                 }
                 QPushButton {
-                    background-color: #2980b9;
+                    background-color: #002A4D;
                     border: none;
                     color: white;
                     padding: 7px 14px;
@@ -309,7 +300,7 @@ class Dashboard(QWidget):
                     font-weight: bold;
                 }
                 QPushButton:hover {
-                    background-color: #3498db;
+                    background-color: #003A5D;
                 }
                 QTextEdit {
                     background-color: #1e1e2f;
@@ -319,19 +310,24 @@ class Dashboard(QWidget):
                     border-radius: 8px;
                     padding: 8px;
                 }
+                QFrame {
+                    background-color: #2c3e50;
+                    border-radius: 10px;
+                    padding: 3px;
+                }
             """
         else:
             return """
                 QWidget {
-                    background-color: #f0f0f0;
-                    color: #2c3e50;
+                    background-color: #FFFFFF;
+                    color: #002A4D;
                     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
                 }
                 QLabel {
-                    color: #2c3e50;
+                    color: #002A4D;
                 }
                 QPushButton {
-                    background-color: #2980b9;
+                    background-color: #002A4D;
                     border: none;
                     color: white;
                     padding: 7px 14px;
@@ -339,20 +335,20 @@ class Dashboard(QWidget):
                     font-weight: bold;
                 }
                 QPushButton:hover {
-                    background-color: #3498db;
+                    background-color: #003A5D;
                 }
                 QTextEdit {
                     background-color: #ffffff;
-                    color: #2c3e50;
+                    color: #002A4D;
                     font-family: Consolas, monospace;
                     font-size: 11pt;
                     border-radius: 8px;
                     padding: 8px;
                 }
                 QFrame {
-                    background-color: #dfe6e9;
+                    background-color: #C6E5F5;
                     border-radius: 10px;
-                    padding: 14px;
+                    padding: 5px;
                 }
             """
 
@@ -363,24 +359,6 @@ class Dashboard(QWidget):
         else:
             self.mode_toggle_btn.setText("Switch to Dark Mode")
         self.setStyleSheet(self._get_stylesheet())
-        # Also update frames background colors for light mode
-        for frame in self.findChildren(QFrame):
-            if self.dark_mode:
-                frame.setStyleSheet("""
-                    QFrame {
-                        background-color: #2c3e50;
-                        border-radius: 10px;
-                        padding: 5px;
-                    }
-                """)
-            else:
-                frame.setStyleSheet("""
-                    QFrame {
-                        background-color: #dfe6e9;
-                        border-radius: 10px;
-                        padding: 5px;
-                    }
-                """)
 
 
 def main():
