@@ -1,6 +1,7 @@
 import sys
 import random
 import psutil
+import json
 from datetime import datetime, timedelta
 
 from PyQt5.QtCore import Qt, QTimer, QTime
@@ -138,7 +139,10 @@ class Dashboard(QWidget):
         # Create parameter frames
         self.param_labels = {}
 
-        param_names = ["Total Delay (in mins)", "Total Production (in units)", "Shift A Production (in units)", "Shift B Production (in units)"]
+        # Load parameters from JSON
+        with open('config.json', 'r') as f:
+            data = json.load(f)
+        param_names = [p['name'] for p in data.get('parameters', [])]
         for i, name in enumerate(param_names):
             label_value = QLabel("0")
             label_value.setFont(QFont("Segoe UI", 22, QFont.Bold))
@@ -146,8 +150,8 @@ class Dashboard(QWidget):
             label_value.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
             frame = self._create_info_box(name, label_value)
-            frame.setMinimumSize(180, 110)
-            params_layout.addWidget(frame, i // 2, i % 2)
+            # frame.setMinimumSize(180, 110)
+            params_layout.addWidget(frame, i // 4, i % 4)
             self.param_labels[name] = label_value
 
         params_widget.setLayout(params_layout)
@@ -247,21 +251,22 @@ class Dashboard(QWidget):
             self._log("PLC disconnected.")
 
     def _update_parameters(self):
-        # Simulate real-time parameter updates with random values
-        delay = random.uniform(0, 100)
-        total_prod = random.randint(100, 1000)
-        shift_a = random.randint(50, 500)
-        shift_b = random.randint(50, 500)
-        oee = random.uniform(50.0, 100.0)
+        # Update parameter values from JSON or simulate if no value provided
+        with open('config.json', 'r') as f:
+            data = json.load(f)
+        parameters = data.get('parameters', [])
 
-        self.param_labels["Total Delay (in mins)"].setText(f"{delay:.1f}")
-        self.param_labels["Total Production (in units)"].setText(f"{total_prod}")
-        self.param_labels["Shift A Production (in units)"].setText(f"{shift_a}")
-        self.param_labels["Shift B Production (in units)"].setText(f"{shift_b}")
+        for param in parameters:
+            name = param.get('name')
+            value = param.get('value', '0')
+            if name in self.param_labels:
+                self.param_labels[name].setText(str(value))
+
+        # Simulate OEE update
+        oee = random.uniform(50.0, 100.0)
         self.oee_label.setText(f"{oee:.1f}")
 
-        self._log(f"Parameters updated: Delay={delay:.1f} mins, Total Prod={total_prod} units, "
-                  f"Shift A={shift_a} units, Shift B={shift_b} units, O.E.E={oee:.1f}%")
+        self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
 
     def _log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
