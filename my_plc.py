@@ -116,7 +116,6 @@ class Plc:
             parameters = data.get('parameters', [])
             tags = []
             labels = []
-
             for param in parameters:
                 tags.append(param.get('value', '0'))
                 labels.append(param.get('name'))

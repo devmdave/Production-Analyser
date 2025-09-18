@@ -15,6 +15,10 @@ for param in parameters:
 # Dictionary to store the PLC data
 tags_data = {}
 for index,tag in enumerate(tags):
+    print("tag in loop", tag)
     tags_data[labels[index]] = random.randint(0,100)
+
+print(tags)
+print(labels)
 
 print(tags_data)

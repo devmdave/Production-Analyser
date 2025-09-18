@@ -2,15 +2,15 @@
   "parameters": [
     {
       "name": "Parameter 1",
-      "value": "Value 1"
+      "value": "UBG_LINE_PLC_TOTAL_1"
     },
     {
       "name": "Parameter 2",
-      "value": "Value 2"
+      "value": "UBG_LINE_PC.Shift_A_Total"
     },
     {
       "name": "Parameter 3",
-      "value": "Value 3"
+      "value": "UBG_LINE_PC.Shift_B_Total"
     }
 
   ]

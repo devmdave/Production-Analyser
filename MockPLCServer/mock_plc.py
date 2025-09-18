@@ -28,7 +28,7 @@ class pycomm3:
         tags_data = {}
         # Connect to the PLC using LogixDriver
         for index,tag in enumerate(tags):
-            tags_data[labels[index]] = random.randint(0,100)
+            tags_data[labels[index]] = random.randint(0,100) #84 
         
         return tags_data
 # Usage
