@@ -5,12 +5,14 @@ import json
 import time
 import threading
 from datetime import datetime, timedelta
+
+from MockPLCServer.mock_plc import pycomm3
 from my_plc import Plc
 from PyQt5.QtCore import Qt, QTimer, QTime
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QTextEdit, QFrame, QPushButton, QSizePolicy
+    QTextEdit, QFrame, QPushButton, QSizePolicy, QMenuBar, QMenu, QAction
 )
 
 
@@ -21,10 +23,12 @@ class Dashboard(QWidget):
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
         self.resize(850, 520)
 
-        self.plc = Plc('192.168.0.10')
+        self.plc = pycomm3()
 
         self.dark_mode = False
         self.setStyleSheet(self._get_stylesheet())
+
+        self.menu_bar = QMenuBar(self)
 
         self.last_backup_time = datetime.now() - timedelta(hours=2, minutes=15)
         self.plc_connected = False
@@ -52,6 +56,9 @@ class Dashboard(QWidget):
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(10)
+
+        self._create_menu_bar()
+        main_layout.addWidget(self.menu_bar)
 
         # Top header with logo and heading
         header_frame = QFrame()
@@ -284,6 +291,51 @@ class Dashboard(QWidget):
         layout.addWidget(widget)
         box.setLayout(layout)
         return box
+
+    def _create_menu_bar(self):
+        qss = """
+        QMenuBar {
+            background-color: #C6E5F5;  /* Dark blue-gray */
+            font-weight: bold;
+            color: #002A4D;
+        }
+
+        QMenuBar::item {
+            spacing: 3px;
+            padding: 4px 12px;
+            background-color: #C6E5F5;  /* Slightly lighter */
+        }
+
+        QMenuBar::item:selected {
+            background-color: #AAD8F0;  /* Hover color */
+        }
+
+        QMenuBar::item:pressed {
+            background-color: #AAD8F0;  /* Clicked color */
+        }
+
+        QMenu {
+            background-color: #C6E5F5;  /* Dropdown background */
+
+        }
+
+        QMenu::item {
+            padding: 5px 20px;
+            background-color: transparent;
+        }
+
+        QMenu::item:selected {
+            background-color: #6ABBE5;
+            color: black;
+        }
+        """
+        self.menu_bar.setStyleSheet(qss)
+
+        # Add File menu
+        file_menu = self.menu_bar.addMenu("File")
+        exit_action = QAction("Exit", self)
+        exit_action.triggered.connect(self.close)
+        file_menu.addAction(exit_action)
 
 
     def _get_stylesheet(self):
