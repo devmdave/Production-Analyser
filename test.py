@@ -92,10 +92,14 @@ class CustomTimeEdit(QTimeEdit):
 class Dashboard(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.ui_activated_once = False
+        self.initialise_dashboard()
+    
+    def initialise_dashboard(self):
         self.setWindowTitle("Professional Dashboard")
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
         self.resize(850, 520)
-        self.ui_activated_once = False
+       
 
         self.plc = pycomm3()
 
@@ -142,6 +146,7 @@ class Dashboard(QMainWindow):
         self.param_thread = threading.Thread(target=self._update_parameters, daemon=True)
         self.param_thread.start()
         self._log("Dashboard initialized.")
+
 
     def _init_ui(self):
         try:
@@ -659,7 +664,7 @@ class Dashboard(QMainWindow):
         
         # Create back button to go to dashboard
         back_button = QPushButton("Back")
-        back_button.clicked.connect(lambda : self._init_ui())
+        back_button.clicked.connect(lambda : self.reinitialize_dashboard())
 
                                     
 
@@ -908,7 +913,6 @@ class Dashboard(QMainWindow):
         elif response == MyWindow.LOAD_DATA_SUCCESS:
             self.Dialog.show_success_data_loaded()
 
-
     def highlight_max_values(self,table):
         rows = table.rowCount()
         cols = table.columnCount()
@@ -932,6 +936,9 @@ class Dashboard(QMainWindow):
             # Highlight the max cell
             if max_row != -1 and max_val != 0:
                 table.item(max_row, col).setBackground(QColor(255, 0, 0))  # Red
+
+    def reinitialize_dashboard(self):
+        self.initialise_dashboard()
 
 
 
