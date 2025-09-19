@@ -110,7 +110,7 @@ class Plc:
 
     def read_dashboard_tags(self):
         try:
-            with open('config.json', 'r') as f:
+            with open('plc_custom_user_tags\\dashboard_tags.json', 'r') as f:
                 data = json.load(f)
 
             parameters = data.get('parameters', [])

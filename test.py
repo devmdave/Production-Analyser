@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QTextEdit, QFrame, QPushButton, QSizePolicy, QMenu, QAction, QWidget,
     QTableWidget, QTableWidgetItem, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem
 )
-
+from dashboard_parameter_manager import DashboardParameterManager
 from TagManager import TagManagerWindow
 from Dialog import *
 import os
@@ -92,7 +92,7 @@ class Dashboard(QMainWindow):
         self.initialise_dashboard()
     
     def initialise_dashboard(self):
-        self.setWindowTitle("Professional Dashboard")
+        self.setWindowTitle("Automated Production Analyser")
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
 
         self.plc = my_plc.Plc('192.168.0.10')
@@ -115,7 +115,8 @@ class Dashboard(QMainWindow):
         self.edit_station_fault_win = TagManagerWindow(json_path="plc_custom_user_tags\\fault_delay_tags.json")
         self.edit_tip_dress_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_tip_change_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
-        self.edit_dashboard_win = TagManagerWindow(json_path="plc_custom_user_tags\\dashboard_tags.json")
+        self.edit_dashboard_win = DashboardParameterManager(json_path="plc_custom_user_tags\\dashboard_tags.json")
+        
         self.label = QLabel()
 
         self.last_backup_time = datetime.now() - timedelta(hours=2, minutes=15)
@@ -251,7 +252,7 @@ class Dashboard(QMainWindow):
         self.param_labels = {}
 
         # Load parameters from JSON
-        with open('config.json', 'r') as f:
+        with open('plc_custom_user_tags\\dashboard_tags.json', 'r') as f:
             data = json.load(f)
         param_names = [p['name'] for p in data.get('parameters', [])]
         for i, name in enumerate(param_names):
@@ -366,7 +367,7 @@ class Dashboard(QMainWindow):
         while True:
             plc_res = self.plc.read_dashboard_tags()
             # Update parameter values from JSON or simulate if no value provided
-            with open('config.json', 'r') as f:
+            with open('plc_custom_user_tags\\dashboard_tags.json', 'r') as f:
                 data = json.load(f)
             parameters = data.get('parameters', [])
             for param in parameters:
