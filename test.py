@@ -7,7 +7,6 @@ import threading
 from datetime import datetime, timedelta
 from Layouts import MyWindow
 from MockPLCServer.mock_plc import pycomm3
-from my_plc import Plc
 from PyQt5.QtCore import Qt, QTimer, QTime, QDateTime, QStringListModel
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap
 from PyQt5.QtWidgets import (
@@ -98,8 +97,6 @@ class Dashboard(QMainWindow):
     def initialise_dashboard(self):
         self.setWindowTitle("Professional Dashboard")
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
-        self.resize(850, 520)
-       
 
         self.plc = pycomm3()
 
@@ -110,8 +107,7 @@ class Dashboard(QMainWindow):
 
         self.active_dashboard = True
         self.setWindowTitle("Production Analyser")
-        self.setFixedSize(1200,600)
-        self.setGeometry(100, 100, 1200, 600)
+        self.setGeometry(100, 100, 1200, 700)
         self.setWindowIcon(QIcon("icon.png"))
         self.cycle_time = 0
         self.file_path = "production.xlsx"
@@ -190,8 +186,8 @@ class Dashboard(QMainWindow):
         right_layout.addWidget(heading)
 
         # Subheading
-        subheading = QLabel("Real Time Metrics")
-        subheading.setFont(QFont("Segoe UI", 10))
+        subheading = QLabel("Dashboard - Monitoring Parameters in Real-Time")
+        subheading.setFont(QFont("Segoe UI", 10,QFont.Bold))
         subheading.setAlignment(Qt.AlignLeft)
         right_layout.addWidget(subheading)
 
@@ -243,7 +239,6 @@ class Dashboard(QMainWindow):
         info_panel.addWidget(self._create_info_box("PLC Connection", plc_status_widget))
 
         # Light/Dark Mode Toggle Button moved to log section
-
         main_layout.addLayout(info_panel)
 
         # Bottom layout: Four parameter frames + Log window
@@ -280,14 +275,17 @@ class Dashboard(QMainWindow):
         log_widget = QWidget()
         log_layout = QVBoxLayout()
         log_layout.setContentsMargins(0, 0, 0, 0)
-        log_layout.setSpacing(5)
+        log_layout.setSpacing(0)
 
         log_title = QLabel("Events")
-        log_title.setFont(QFont("Segoe UI", 18, QFont.Bold))
+        log_title.setFont(QFont("Segoe UI", 12, QFont.Bold))
         log_title.setAlignment(Qt.AlignLeft)
+        log_title.setStyleSheet("padding-bottom: 5px;border-radius: 0px;")
         log_layout.addWidget(log_title)
 
         self.log_text = QTextEdit()
+        self.log_text.setFont(QFont("Consolas", 11))
+        self.log_text.setStyleSheet("border-radius: 0px; padding: 2px;")
         self.log_text.setReadOnly(True)
         log_layout.addWidget(self.log_text)
 
@@ -333,7 +331,7 @@ class Dashboard(QMainWindow):
 
         # Update PLC connection status every 5 seconds (simulate)
         self.plc_timer = QTimer()
-        self.plc_timer.timeout.connect(self._update_plc_status)
+        # self.plc_timer.timeout.connect(self._update_plc_status)
         self.plc_timer.start(5000)
         self._update_plc_status()
 
@@ -471,8 +469,6 @@ class Dashboard(QMainWindow):
         self.edit_tipdress_tag_action.triggered.connect(lambda:self.edit_tip_dress_tags())
         self.edit_dashboard_tag_action.triggered.connect(lambda:self.edit_dashboard_tags())
 
-
-
     def _get_stylesheet(self):
         if self.dark_mode:
             return """
@@ -500,7 +496,6 @@ class Dashboard(QMainWindow):
                     color: #ecf0f1;
                     font-family: Consolas, monospace;
                     font-size: 11pt;
-                    border-radius: 8px;
                     padding: 8px;
                 }
                 QFrame {
@@ -535,7 +530,6 @@ class Dashboard(QMainWindow):
                     color: #002A4D;
                     font-family: Consolas, monospace;
                     font-size: 11pt;
-                    border-radius: 8px;
                     padding: 8px;
                 }
                 QFrame {
@@ -573,7 +567,6 @@ class Dashboard(QMainWindow):
 
     def show_about_dialog(self):
         QMessageBox.about(self, "About", "Production Analyser\nVersion 1.0\nDeveloped by Your Name")
-
 
     def cycletime_backup_layout(self):
         self.timer.stop()
@@ -939,8 +932,6 @@ class Dashboard(QMainWindow):
 
     def reinitialize_dashboard(self):
         self.initialise_dashboard()
-
-
 
 def main():
     app = QApplication(sys.argv)
