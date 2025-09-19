@@ -85,9 +85,6 @@ class CustomTimeEdit(QTimeEdit):
             return
         super().keyPressEvent(event)
 
-
-
-
 class Dashboard(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -98,7 +95,7 @@ class Dashboard(QMainWindow):
         self.setWindowTitle("Professional Dashboard")
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
 
-        self.plc = pycomm3()
+        self.plc = my_plc.Plc('192.168.0.10')
 
         self.dark_mode = False
         self.setStyleSheet(self._get_stylesheet())
@@ -330,9 +327,9 @@ class Dashboard(QMainWindow):
         self._update_backup_time()
 
         # Update PLC connection status every 5 seconds (simulate)
-        self.plc_timer = QTimer()
+        # self.plc_timer = QTimer()
         # self.plc_timer.timeout.connect(self._update_plc_status)
-        self.plc_timer.start(5000)
+        # self.plc_timer.start(5000)
         self._update_plc_status()
 
     def _update_time(self):
@@ -403,13 +400,12 @@ class Dashboard(QMainWindow):
     def _create_menu_bar(self):
         self.menu_bar.setStyleSheet(qss)
 
-            # Menu bar
+        # Menu bar
         cycle_menu = self.menu_bar.addMenu("Cycle Time")
         fault_menu = self.menu_bar.addMenu("Fault Delay")
         tip_dress_menu = self.menu_bar.addMenu("Tip Dress")
         edit_tag_menu = self.menu_bar.addMenu("Edit Tag")
         setting_menu = self.menu_bar.addMenu("Setting")
-        
 
         #menu bar actions
         self.view_cycle_action = QAction("Veiw Backup Data", self)
@@ -458,7 +454,7 @@ class Dashboard(QMainWindow):
         setting_menu.addAction(self.set_backup_time)
 
         self.get_backup_time = QAction("Show Saved Backup Time", self)
-        self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) # Placeholder action
+        self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) #Placeholder action
                 
         setting_menu.addAction(self.get_backup_time)
 
@@ -503,6 +499,19 @@ class Dashboard(QMainWindow):
                     border-radius: 10px;
                     padding: 3px;
                 }
+                QTableWidget {
+                    font-size: 10px;
+                    background-color: #f5f5f5;
+                    gridline-color: #0000FF;
+                    selection-background-color: #a0d7ff;
+                    font-family: 'Segoe UI';
+                }
+                QHeaderView::section {
+                    background-color: #e0e0e0;
+                    font-weight: bold;
+                    padding: 4px;
+                    border: 1px solid #c0c0c0;
+                }
             """
         else:
             return """
@@ -536,6 +545,19 @@ class Dashboard(QMainWindow):
                     background-color: #C6E5F5;
                     border-radius: 10px;
                     padding: 5px;
+                }
+                QTableWidget {
+                    font-size: 10px;
+                    background-color: #f5f5f5;
+                    gridline-color: #0000FF;
+                    selection-background-color: #a0d7ff;
+                    font-family: 'Segoe UI';
+                }
+                QHeaderView::section {
+                    background-color: #e0e0e0;
+                    font-weight: bold;
+                    padding: 4px;
+                    border: 1px solid #c0c0c0;
                 }
             """
 
@@ -774,14 +796,13 @@ class Dashboard(QMainWindow):
             QHeaderView::section {
                 background-color: #e0e0e0;
                 font-weight: bold;
-                padding: 4px;
-                border: 1px solid #c0c0c0;
             }
         """
         )
         self.highlight_max_values(table)
         # Adjust column widths
         table.resizeColumnsToContents()
+        table.resizeRowsToContents()
 
     def populate_table(self, table, df):
         # Set table dimensions (add 1 row for totals and 1 column for row sums)
@@ -821,13 +842,10 @@ class Dashboard(QMainWindow):
             }
         """
         )
-
         # Adjust column widths
         table.resizeColumnsToContents()
 
     def populate_delay_total(self, table, df):
-
-
         # Calculate row sums for numeric columns
         df.insert(
             1, "Total", df.select_dtypes(include=["int64", "float64"]).sum(axis=1), True
@@ -856,7 +874,6 @@ class Dashboard(QMainWindow):
                 gridline-color: 2px solid #000000;               
                 selection-background-color: #a0d7ff;
                 font-family: 'Segoe UI';
-                
             }
 
             QHeaderView::section {
@@ -865,7 +882,7 @@ class Dashboard(QMainWindow):
                 padding: 4px;
                 
             }
-                 """
+            """
         )
         self.highlight_max_values(table)
 
