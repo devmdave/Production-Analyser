@@ -74,6 +74,7 @@ class ParameterManagerWindow(QMainWindow):
         self._populate_table()
 
     def _load_data(self):
+        os.makedirs("plc_custom_user_tags", exist_ok=True)
         if os.path.exists(self.json_path):
             try:
                 with open(self.json_path, "r", encoding="utf-8") as f:
@@ -87,6 +88,8 @@ class ParameterManagerWindow(QMainWindow):
             self.data = {}
 
     def _save_data(self):
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(self.json_path) or '.', exist_ok=True)
         # Convert self.data dict to list of {"name":..., "value":...} dicts
         params_list = [{"name": k, "value": v} for k, v in self.data.items()]
         content = {"parameters": params_list}
@@ -186,6 +189,6 @@ class ParameterManagerWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = ParameterManagerWindow()
+    window = ParameterManagerWindow("plc_custom_user_tags\\dashboard_tags.json")
     window.show()
     sys.exit(app.exec_())

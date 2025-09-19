@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QTextEdit, QFrame, QPushButton, QSizePolicy, QMenu, QAction, QWidget,
     QTableWidget, QTableWidgetItem, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem
 )
-from dashboard_parameter_manager import DashboardParameterManager
+from dashboard_parameter_manager import ParameterManagerWindow
 from TagManager import TagManagerWindow
 from Dialog import *
 import os
@@ -115,7 +115,7 @@ class Dashboard(QMainWindow):
         self.edit_station_fault_win = TagManagerWindow(json_path="plc_custom_user_tags\\fault_delay_tags.json")
         self.edit_tip_dress_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_tip_change_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
-        self.edit_dashboard_win = DashboardParameterManager(json_path="plc_custom_user_tags\\dashboard_tags.json")
+        self.edit_dashboard_win = ParameterManagerWindow(json_path="plc_custom_user_tags\\dashboard_tags.json")
         
         self.label = QLabel()
 
@@ -252,6 +252,8 @@ class Dashboard(QMainWindow):
         self.param_labels = {}
 
         # Load parameters from JSON
+        data = {}
+        self.create_default_config_if_missing("plc_custom_user_tags\\dashboard_tags.json")
         with open('plc_custom_user_tags\\dashboard_tags.json', 'r') as f:
             data = json.load(f)
         param_names = [p['name'] for p in data.get('parameters', [])]
@@ -381,6 +383,19 @@ class Dashboard(QMainWindow):
 
             self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
             time.sleep(60)
+
+    def create_default_config_if_missing(self,json_path):
+        if not os.path.exists(json_path):
+            default_data = {
+                "parameters": [
+                    {"name": "param1", "value": "value1"},
+                    {"name": "param2", "value": "value2"},
+                    {"name": "param3", "value": "value3"}
+                ]
+            }
+            os.makedirs(os.path.dirname(json_path) or '.', exist_ok=True)
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(default_data, f, indent=4, ensure_ascii=False)
 
     def _log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
