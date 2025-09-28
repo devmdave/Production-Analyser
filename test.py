@@ -2,6 +2,7 @@ import sys
 import random
 import psutil
 import json
+import argparse
 import time
 import threading
 from datetime import datetime, timedelta
@@ -14,6 +15,7 @@ from PyQt5.QtWidgets import (
     QTextEdit, QFrame, QPushButton, QSizePolicy, QMenu, QAction, QWidget,
     QTableWidget, QTableWidgetItem, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem
 )
+from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget
 from dashboard_parameter_manager import ParameterManagerWindow
 from TagManager import TagManagerWindow
 from Dialog import *
@@ -86,16 +88,18 @@ class CustomTimeEdit(QTimeEdit):
         super().keyPressEvent(event)
 
 class Dashboard(QMainWindow):
-    def __init__(self):
+    def __init__(self,which_plc):
         super().__init__()
         self.ui_activated_once = False
+        if which_plc == "plc":
+            self.real_plc_init()
+        elif which_plc == "no-plc":
+            self.mock_plc_init()
         self.initialise_dashboard()
     
     def initialise_dashboard(self):
         self.setWindowTitle("Automated Production Analyser")
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
-
-        self.plc = my_plc.Plc('192.168.0.10')
 
         self.dark_mode = False
         self.setStyleSheet(self._get_stylesheet())
@@ -104,7 +108,7 @@ class Dashboard(QMainWindow):
 
         self.active_dashboard = True
         self.setWindowTitle("Production Analyser")
-        self.setGeometry(100, 100, 1200, 700)
+                
         self.setWindowIcon(QIcon("icon.png"))
         self.cycle_time = 0
         self.file_path = "production.xlsx"
@@ -141,6 +145,11 @@ class Dashboard(QMainWindow):
         self.param_thread.start()
         self._log("Dashboard initialized.")
 
+    def real_plc_init(self):
+        self.plc = my_plc.Plc('192.168.0.10')
+    
+    def mock_plc_init(self):
+        self.plc =  pycomm3()
 
     def _init_ui(self):
         try:
@@ -159,6 +168,18 @@ class Dashboard(QMainWindow):
         if self.ui_activated_once == False:
             self._create_menu_bar()
             self.ui_activated_once = True
+            # Get screen resolution
+            screen = QDesktopWidget().screenGeometry()
+            screen_width = screen.width()
+            screen_height = screen.height()
+
+            # Set window size as a percentage of screen resolution
+            window_width = int(screen_width * 0.6)   # 60% of screen width
+            window_height = int(screen_height * 0.6) # 60% of screen height
+
+            # Resize and center the window
+            self.resize(window_width, window_height)
+            self.center()
 
         # Top header with logo and heading
         header_frame = QFrame()
@@ -315,6 +336,15 @@ class Dashboard(QMainWindow):
         bottom_layout.addWidget(log_widget)
 
         main_layout.addLayout(bottom_layout)
+        
+       
+    
+    def center(self):
+        # Center the window on the screen
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def _init_timers(self):
         # Update current time every second
@@ -515,18 +545,51 @@ class Dashboard(QMainWindow):
                     border-radius: 10px;
                     padding: 3px;
                 }
-                QTableWidget {
+                QMenuBar {
+                    color: #002A4D;
+                    background-color: #C6E5F5;  /* Dark blue-gray */
+                    font-weight: bold;
+                    color: #002A4D;
+                }
+                QMenuBar::item {
+                    spacing: 3px;
+                    padding: 4px 12px;
+                    color: #002A4D;
+                    background-color: #C6E5F5;  /* Slightly lighter */
+                }
+                QMenuBar::item:selected {
+                    color: #002A4D;
+                    background-color: #AAD8F0;  /* Hover color */
+                }
+                QMenuBar::item:pressed {
+                    color: #002A4D;
+                    background-color: #AAD8F0;  /* Clicked color */
+                }
+                QMenu {
+                    color: #002A4D;
+                    background-color: #C6E5F5;  /* Dropdown background */
+                }
+                QMenu::item {
+                    padding: 5px 20px;
+                    color: #002A4D;
+                    background-color: transparent;
+                }
+                QMenu::item:selected {
+                    background-color: #6ABBE5;
+                    color: black;
+                }
+                QTableWidget { 
                     font-size: 10px;
                     background-color: #f5f5f5;
+                    color: #002A4D;
                     gridline-color: #0000FF;
-                    selection-background-color: #a0d7ff;
+                    selection-background-color: rgb(180, 180, 180);
                     font-family: 'Segoe UI';
                 }
                 QHeaderView::section {
                     background-color: #e0e0e0;
+                    color: #002A4D;
                     font-weight: bold;
-                    padding: 4px;
-                    border: 1px solid #c0c0c0;
                 }
             """
         else:
@@ -562,18 +625,37 @@ class Dashboard(QMainWindow):
                     border-radius: 10px;
                     padding: 5px;
                 }
-                QTableWidget {
-                    font-size: 10px;
-                    background-color: #f5f5f5;
-                    gridline-color: #0000FF;
-                    selection-background-color: #a0d7ff;
-                    font-family: 'Segoe UI';
-                }
-                QHeaderView::section {
-                    background-color: #e0e0e0;
+                QMenuBar {
+                    background-color: #C6E5F5;  /* Dark blue-gray */
                     font-weight: bold;
-                    padding: 4px;
-                    border: 1px solid #c0c0c0;
+                    color: #002A4D;
+                }
+                QMenuBar::item {
+                    spacing: 3px;
+                    padding: 4px 12px;
+                    color: #002A4D;
+                    background-color: #C6E5F5;  /* Slightly lighter */
+                }
+                QMenuBar::item:selected {
+                    color: #002A4D;
+                    background-color: #AAD8F0;  /* Hover color */
+                }
+                QMenuBar::item:pressed {
+                    color: #002A4D;
+                    background-color: #AAD8F0;  /* Clicked color */
+                }
+                QMenu {
+                    background-color: #C6E5F5;  /* Dropdown background */
+                    color: #002A4D;
+                }
+                QMenu::item {
+                    padding: 5px 20px;
+                    color: #002A4D;
+                    background-color: transparent;
+                }
+                QMenu::item:selected {
+                    background-color: #6ABBE5;
+                    color: black;
                 }
             """
 
@@ -608,8 +690,6 @@ class Dashboard(QMainWindow):
 
     def cycletime_backup_layout(self):
         self.timer.stop()
-        self.setGeometry(100, 100, 500, 600)
-
         files = (
             os.listdir("CycleTimeBackup")
             if os.path.exists("CycleTimeBackup")
@@ -746,7 +826,6 @@ class Dashboard(QMainWindow):
         self.middle_frame.layout().addWidget(self.table2)
         self.right_frame.layout().addWidget(self.table3)
 
-        self.setGeometry(100, 100, 1200, 600)
 
     def load_data_to_veiw(self):
         try:
@@ -805,12 +884,14 @@ class Dashboard(QMainWindow):
             QTableWidget { 
                 font-size: 10px;
                 background-color: #f5f5f5;
+                color: #002A4D;
                 gridline-color: #0000FF;
-                selection-background-color: #a0d7ff;
+                selection-background-color: rgb(180, 180, 180);
                 font-family: 'Segoe UI';
             }
             QHeaderView::section {
                 background-color: #e0e0e0;
+                color: #002A4D;
                 font-weight: bold;
             }
         """
@@ -847,7 +928,7 @@ class Dashboard(QMainWindow):
                 font-size: 10px;
                 background-color: #f5f5f5;
                 gridline-color: #0000FF;
-                selection-background-color: #a0d7ff;
+                selection-background-color: rgb(180, 180, 180);
                 font-family: 'Segoe UI';
             }
             QHeaderView::section {
@@ -888,10 +969,9 @@ class Dashboard(QMainWindow):
                 background-color: #e0e0e0;
                 border: 2px solid #000000; 
                 gridline-color: 2px solid #000000;               
-                selection-background-color: #a0d7ff;
+                selection-background-color: rgb(180, 180, 180);
                 font-family: 'Segoe UI';
             }
-
             QHeaderView::section {
                 background-color: #e0e0e0;
                 font-weight: bold;
@@ -967,8 +1047,13 @@ class Dashboard(QMainWindow):
         self.initialise_dashboard()
 
 def main():
+    parser = argparse.ArgumentParser(description="Run test.py with plc or no-plc mode")
+    parser.add_argument("mode", choices=["plc", "no-plc"],default="plc", help="Choose 'plc' or 'no-plc' mode")
+    args = parser.parse_args()
+
     app = QApplication(sys.argv)
-    dashboard = Dashboard()
+    dashboard = Dashboard(args.mode)
+
     dashboard.show()
     sys.exit(app.exec_())
 
