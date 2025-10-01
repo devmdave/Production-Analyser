@@ -1,4 +1,3 @@
-# TODO for Configurable Dashboard Parameters
-
-- [ ] Modify test.py to read parameters from config.json and use them for the parameter frames
-- [ ] Test the dashboard by running the script
+- [x] Edit populate_table in test.py to uncomment and set table.setRowHeight(row, 25)
+- [x] Edit populate_delay_table in test.py to change setRowHeight from 10 to 25
+- [x] Edit populate_delay_total in test.py to add table.setRowHeight(row, 25) for each row

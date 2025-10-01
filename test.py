@@ -9,11 +9,11 @@ from datetime import datetime, timedelta
 from Layouts import MyWindow
 from MockPLCServer.mock_plc import pycomm3
 from PyQt5.QtCore import Qt, QTimer, QTime, QDateTime, QStringListModel
-from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap
+from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
     QTextEdit, QFrame, QPushButton, QSizePolicy, QMenu, QAction, QWidget,
-    QTableWidget, QTableWidgetItem, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem
+    QTableView, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem
 )
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget
 from dashboard_parameter_manager import ParameterManagerWindow
@@ -32,31 +32,24 @@ qss = """
             font-weight: bold;
             color: #002A4D;
         }
-
         QMenuBar::item {
             spacing: 3px;
             padding: 4px 12px;
             background-color: #C6E5F5;  /* Slightly lighter */
         }
-
         QMenuBar::item:selected {
             background-color: #AAD8F0;  /* Hover color */
         }
-
         QMenuBar::item:pressed {
             background-color: #AAD8F0;  /* Clicked color */
         }
-
         QMenu {
             background-color: #C6E5F5;  /* Dropdown background */
-
         }
-
         QMenu::item {
             padding: 5px 20px;
             background-color: transparent;
         }
-
         QMenu::item:selected {
             background-color: #6ABBE5;
             color: black;
@@ -578,18 +571,30 @@ class Dashboard(QMainWindow):
                     background-color: #6ABBE5;
                     color: black;
                 }
-                QTableWidget { 
+                QTableView {
                     font-size: 10px;
                     background-color: #f5f5f5;
                     color: #002A4D;
-                    gridline-color: #0000FF;
-                    selection-background-color: rgb(180, 180, 180);
+                    gridline-color: #cccccc;
+                    selection-background-color: #d3d3d3;
+                    alternate-background-color: #f0f8ff;
                     font-family: 'Segoe UI';
+                    border: 1px solid #cccccc;
+                    border-radius: 5px;
+                }
+                QTableView::item {
+                    padding: 5px;
                 }
                 QHeaderView::section {
-                    background-color: #e0e0e0;
-                    color: #002A4D;
+                    background-color: #002A4D;
+                    color: white;
                     font-weight: bold;
+                    padding: 8px;
+                    border: none;
+                    border-bottom: 2px solid #aad8f0;
+                }
+                QHeaderView::section:hover {
+                    background-color: #003A5D;
                 }
             """
         else:
@@ -656,6 +661,31 @@ class Dashboard(QMainWindow):
                 QMenu::item:selected {
                     background-color: #6ABBE5;
                     color: black;
+                }
+                QTableView {
+                    font-size: 10px;
+                    background-color: #f5f5f5;
+                    color: #002A4D;
+                    gridline-color: #cccccc;
+                    selection-background-color: #d3d3d3;
+                    alternate-background-color: #f0f8ff;
+                    font-family: 'Segoe UI';
+                    border: 1px solid #cccccc;
+                    border-radius: 5px;
+                }
+                QTableView::item {
+                    padding: 5px;
+                }
+                QHeaderView::section {
+                    background-color: #002A4D;
+                    color: white;
+                    font-weight: bold;
+                    padding: 8px;
+                    border: none;
+                    border-bottom: 2px solid #aad8f0;
+                }
+                QHeaderView::section:hover {
+                    background-color: #003A5D;
                 }
             """
 
@@ -817,9 +847,9 @@ class Dashboard(QMainWindow):
         main_layout.addLayout(tables_layout)
 
         # Create tables
-        self.table1 = QTableWidget()
-        self.table2 = QTableWidget()
-        self.table3 = QTableWidget()
+        self.table1 = QTableView()
+        self.table2 = QTableView()
+        self.table3 = QTableView()
 
         # Add tables to their respective frames
         self.left_frame.layout().addWidget(self.table1)
@@ -851,94 +881,61 @@ class Dashboard(QMainWindow):
     def populate_delay_table(self, table, df):
         # Calculate row sums for numeric columns
         row_sums = df.select_dtypes(include=["int64", "float64"]).sum(axis=1)
-        
-        # Set table dimensions (add 1 row for totals and 1 column for row sums)
-        table.setRowCount(df.shape[0])
-        table.setColumnCount(df.shape[1] + 1)
+
+        model = QStandardItemModel()
+        model.setRowCount(df.shape[0])
+        model.setColumnCount(df.shape[1] + 1)
 
         # Set headers
         headers = [str(col) for col in df.columns] + ["Row Total"]
-        table.setHorizontalHeaderLabels(headers)
-        table.verticalHeader().setVisible(False)
+        model.setHorizontalHeaderLabels(headers)
 
         # Populate table with data
         for row in range(df.shape[0]):
             for col in range(df.shape[1]):
-                item = QTableWidgetItem(str(df.iloc[row, col]))
+                item = QStandardItem(str(df.iloc[row, col]))
                 if type(df.iloc[row, col]) != str:
                     if int(df.iloc[row, col]) > 0 :
                         item.setBackground(QColor(255, 255, 100))
-                table.setItem(row, col, item)
+                model.setItem(row, col, item)
 
             # Add row sum in the last column
-            row_sum_item = QTableWidgetItem(f"{row_sums[row]}")
+            row_sum_item = QStandardItem(f"{row_sums[row]}")
             row_sum_item.setBackground(
                 QColor(200, 230, 255)
             )  # Light purple background(230, 230, 250)
             row_sum_item.setFont(QFont("Arial", 8, QFont.Bold))
-            table.setItem(row, df.shape[1], row_sum_item)
-            table.setRowHeight(row, 10)
+            model.setItem(row, df.shape[1], row_sum_item)
 
-        table.setStyleSheet(
-            """
-            QTableWidget { 
-                font-size: 10px;
-                background-color: #f5f5f5;
-                color: #002A4D;
-                gridline-color: #0000FF;
-                selection-background-color: rgb(180, 180, 180);
-                font-family: 'Segoe UI';
-            }
-            QHeaderView::section {
-                background-color: #e0e0e0;
-                color: #002A4D;
-                font-weight: bold;
-            }
-        """
-        )
-        self.highlight_max_values(table)
+        table.setModel(model)
+        table.verticalHeader().setVisible(False)
+
+        self.highlight_max_values(model)
         # Adjust column widths
         table.resizeColumnsToContents()
         table.resizeRowsToContents()
 
     def populate_table(self, table, df):
-        # Set table dimensions (add 1 row for totals and 1 column for row sums)
-        table.setRowCount(df.shape[0])
-        table.setColumnCount(df.shape[1])
+        model = QStandardItemModel()
+        model.setRowCount(df.shape[0])
+        model.setColumnCount(df.shape[1])
 
         # Set headers
         headers = [str(col) for col in df.columns]
-        table.setHorizontalHeaderLabels(headers)
-        table.verticalHeader().setVisible(False)
-        # df.iloc[0,0] = "Station Name"
-        # Populate table with data and row sums
+        model.setHorizontalHeaderLabels(headers)
+
+        # Populate table with data
         for row in range(df.shape[0]):
-            # Populate regular data
             for col in range(df.shape[1]):
-                item = QTableWidgetItem(str(df.iloc[row, col]))
+                item = QStandardItem(str(df.iloc[row, col]))
                 if type(df.iloc[row, col]) != str:
                     if int(df.iloc[row, col]) >= self.cycle_time:
                         item.setBackground(QColor(255, 255, 100))
-                table.setItem(row, col, item)
-            table.setRowHeight(row, 10)
-        table.setStyleSheet(
-            """
-            QTableWidget {
-                
-                font-size: 10px;
-                background-color: #f5f5f5;
-                gridline-color: #0000FF;
-                selection-background-color: rgb(180, 180, 180);
-                font-family: 'Segoe UI';
-            }
-            QHeaderView::section {
-                background-color: #e0e0e0;
-                font-weight: bold;
-                padding: 4px;
-                border: 1px solid #c0c0c0;
-            }
-        """
-        )
+                model.setItem(row, col, item)
+
+        table.setModel(model)
+        table.verticalHeader().setVisible(False)
+
         # Adjust column widths
         table.resizeColumnsToContents()
 
@@ -948,39 +945,24 @@ class Dashboard(QMainWindow):
             1, "Total", df.select_dtypes(include=["int64", "float64"]).sum(axis=1), True
         )
 
-        table.setRowCount(df.shape[0])
-        table.setColumnCount(2)
+        model = QStandardItemModel()
+        model.setRowCount(df.shape[0])
+        model.setColumnCount(2)
         # Set headers
         headers = [str(col) for col in df.columns]
-        table.setHorizontalHeaderLabels(headers)
-        table.verticalHeader().setVisible(False)
+        model.setHorizontalHeaderLabels(headers)
 
         # Populate table with data
         for row in range(df.shape[0]):
             for col in range(df.shape[1]):
-                item = QTableWidgetItem(str(df.iloc[row, col]))
+                item = QStandardItem(str(df.iloc[row, col]))
                 item.setTextAlignment(Qt.AlignCenter)
-                table.setItem(row, col, item)
+                model.setItem(row, col, item)
 
-        table.setStyleSheet(
-            """
-            QTableWidget {
-                font-size: 10px;
-                background-color: #e0e0e0;
-                border: 2px solid #000000; 
-                gridline-color: 2px solid #000000;               
-                selection-background-color: rgb(180, 180, 180);
-                font-family: 'Segoe UI';
-            }
-            QHeaderView::section {
-                background-color: #e0e0e0;
-                font-weight: bold;
-                padding: 4px;
-                
-            }
-            """
-        )
-        self.highlight_max_values(table)
+        table.setModel(model)
+        table.verticalHeader().setVisible(False)
+
+        self.highlight_max_values(model)
 
     def create_table_frame(self, title):
         frame = QWidget()
@@ -1019,9 +1001,9 @@ class Dashboard(QMainWindow):
         elif response == MyWindow.LOAD_DATA_SUCCESS:
             self.Dialog.show_success_data_loaded()
 
-    def highlight_max_values(self,table):
-        rows = table.rowCount()
-        cols = table.columnCount()
+    def highlight_max_values(self, model):
+        rows = model.rowCount()
+        cols = model.columnCount()
 
         for col in range(cols):
             max_val = float('-inf')
@@ -1029,7 +1011,7 @@ class Dashboard(QMainWindow):
 
             # Find max value in the column
             for row in range(rows):
-                item = table.item(row, col)
+                item = model.item(row, col)
                 if item:
                     try:
                         val = float(item.text())
@@ -1041,7 +1023,7 @@ class Dashboard(QMainWindow):
 
             # Highlight the max cell
             if max_row != -1 and max_val != 0:
-                table.item(max_row, col).setBackground(QColor(255, 0, 0))  # Red
+                model.item(max_row, col).setBackground(QColor(255, 0, 0))  # Red
 
     def reinitialize_dashboard(self):
         self.initialise_dashboard()

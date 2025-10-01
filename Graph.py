@@ -1,10 +1,7 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+
+
 # Example DataFrame
-data = {
-    'Month': ['Jan', 'Feb', 'Mar', 'Apr'],
-    'Sales': [250, 300, 400, 350]
-}
+data = 
 df = pd.DataFrame(data)
 
 
