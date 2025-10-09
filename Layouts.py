@@ -408,7 +408,6 @@ class MyWindow(QMainWindow):
         # Create back button to go to dashboard
         back_button = QPushButton("Back")
         back_button.clicked.connect(lambda : self.main_window())
-
                                     
 
         # Create cycle time input

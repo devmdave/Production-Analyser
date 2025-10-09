@@ -1,5 +1,6 @@
 import sys
 import random
+from matplotlib import pyplot as plt
 import psutil
 import json
 import argparse
@@ -88,13 +89,14 @@ class Dashboard(QMainWindow):
             self.real_plc_init()
         elif which_plc == "no-plc":
             self.mock_plc_init()
+        self.currentfile_path= ""
         self.initialise_dashboard()
     
     def initialise_dashboard(self):
         self.setWindowTitle("Automated Production Analyser")
         self.setWindowIcon(QIcon.fromTheme("applications-system"))
 
-        self.dark_mode = False
+        self.dark_mode = True
         self.setStyleSheet(self._get_stylesheet())
 
         self.menu_bar = self.menuBar()
@@ -105,6 +107,7 @@ class Dashboard(QMainWindow):
         self.setWindowIcon(QIcon("icon.png"))
         self.cycle_time = 0
         self.file_path = "production.xlsx"
+       
         self.Dialog = Dialog()
         self.dlg = BackupTimeDialog()
         self.edit_cyctime_win = TagManagerWindow(json_path="plc_custom_user_tags\\cycle_time_tags.json")
@@ -445,6 +448,7 @@ class Dashboard(QMainWindow):
         tip_dress_menu = self.menu_bar.addMenu("Tip Dress")
         edit_tag_menu = self.menu_bar.addMenu("Edit Tag")
         setting_menu = self.menu_bar.addMenu("Setting")
+        
 
         #menu bar actions
         self.view_cycle_action = QAction("Veiw Backup Data", self)
@@ -718,7 +722,7 @@ class Dashboard(QMainWindow):
     def show_about_dialog(self):
         QMessageBox.about(self, "About", "Production Analyser\nVersion 1.0\nDeveloped by Your Name")
 
-    def cycletime_backup_layout(self):
+    def cycletime_backup_layout(self):   
         self.timer.stop()
         files = (
             os.listdir("CycleTimeBackup")
@@ -740,7 +744,7 @@ class Dashboard(QMainWindow):
             files.remove(file)
             file = file.replace(".xlsx", "")
             files.append(file)
-            
+             
         self.model = QStringListModel(files)
         # List view
         list_view = QListView()
@@ -759,9 +763,7 @@ class Dashboard(QMainWindow):
         self.file_name_label.setFont(QFont("Arial", 10, QFont.Bold))
         self.file_name_label.setStyleSheet("padding: 5px;")
 
-
         control_panel.addWidget(self.file_name_label, alignment=Qt.AlignLeft)
-
 
         # Layout
         layout = QVBoxLayout(self.central_widget)
@@ -772,6 +774,7 @@ class Dashboard(QMainWindow):
     def list_view_item_clicked(self, index):
         self.cycletime_current_layout()
         self.file_path = "./CycleTimeBackup/" + self.model.data(index, 0)+ ".xlsx"
+        self.currentfile_path = self.file_path
         self.file_name_label.setText(f"Record Dated: {self.model.data(index,0)}")
         self.load_data_to_veiw()
 
@@ -807,6 +810,13 @@ class Dashboard(QMainWindow):
         back_button = QPushButton("Back")
         back_button.clicked.connect(lambda : self.reinitialize_dashboard())
 
+
+        # Create graph button to show graph
+        # graph_button = QPushButton("Pie Chart")
+        # df = pd.read_excel(self.file_path)
+        # print(self.file_path)
+        # print(self.currentfile_path)
+        # graph_button.clicked.connect(lambda : print(df))
                                     
 
         # Create cycle time input
@@ -836,6 +846,7 @@ class Dashboard(QMainWindow):
         spacer = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         control_panel.addWidget(back_button, alignment=Qt.AlignLeft)
+        #control_panel.addWidget(graph_button, alignment=Qt.AlignLeft)
         control_panel.addWidget(cycle_label, alignment=Qt.AlignLeft)
         control_panel.addWidget(self.cycle_input, alignment=Qt.AlignLeft)
         control_panel.addItem(spacer)
@@ -862,7 +873,7 @@ class Dashboard(QMainWindow):
             self.cycle_time = int(self.cycle_input.text())
             # Read Excel file using pandas
             df = pd.read_excel(self.file_path)
-            # Split the dataframe into three parts
+            #plit the dataframe into three parts
             if not df.empty:
                 df.columns.values[0] = "Station No"
                 # Populate the three tables
@@ -913,7 +924,7 @@ class Dashboard(QMainWindow):
         self.highlight_max_values(model)
         # Adjust column widths
         table.resizeColumnsToContents()
-        table.resizeRowsToContents()
+        
 
     def populate_table(self, table, df):
         model = QStandardItemModel()
@@ -938,8 +949,9 @@ class Dashboard(QMainWindow):
 
         # Adjust column widths
         table.resizeColumnsToContents()
+        
 
-    def populate_delay_total(self, table, df):
+    def populate_delay_total(self, table, df): 
         # Calculate row sums for numeric columns
         df.insert(
             1, "Total", df.select_dtypes(include=["int64", "float64"]).sum(axis=1), True
@@ -1028,9 +1040,43 @@ class Dashboard(QMainWindow):
     def reinitialize_dashboard(self):
         self.initialise_dashboard()
 
+    def pie_graph(self,df):
+
+        # Convert to dictionary of lists
+        #df= (df - cycle_time).clip(lower=0)
+
+        data = df.T.to_dict(orient="list")
+        print(data)
+    
+        # Step 2: Convert to DataFrame and transpose
+        df = pd.DataFrame(data).T
+
+        # Step 3: Sum each row to get total per UBG label
+        totals = df.sum(axis=1)
+        # Find index of largest slice
+        max_index = totals.idxmax()
+        # Create explode list: 0 for others, 0.1 for largest
+        explode = [0.2 if label == max_index else 0 for label in totals.index]
+
+        # Step 4: Plot pie chart
+        plt.figure(figsize=(10,7))
+        plt.pie(totals, 
+            labels=totals.index,
+            autopct='%1.1f%%', 
+            startangle=90,
+            explode=explode,
+            shadow=False,
+            textprops={'fontsize':12, 'color':'black', 'fontweight':'bold'},
+            wedgeprops={'edgecolor':'black','linewidth':1})
+        plt.title("UBG Delay Distribution", fontsize=16, pad= 30,fontweight='bold', color='purple')
+        plt.axis('equal')  # Ensures pie is circular
+        plt.show()
+        
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run test.py with plc or no-plc mode")
-    parser.add_argument("mode", choices=["plc", "no-plc"],default="plc", help="Choose 'plc' or 'no-plc' mode")
+    parser.add_argument("mode", choices=["plc", "no-plc"],default="no-plc", help="Choose 'plc' or 'no-plc' mode")
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
