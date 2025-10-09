@@ -1,4 +1,3 @@
-
 from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
@@ -12,7 +11,7 @@ class GraphPlotter:
         df= (df - cycle_time).clip(lower=0)
         data = df.T.to_dict(orient="list")
         # print(data)
-    
+
         # Step 2: Convert to DataFrame and transpose
         df = pd.DataFrame(data).T
 
@@ -23,29 +22,34 @@ class GraphPlotter:
         # Create explode list: 0 for others, 0.1 for largest
         explode = [0.2 if label == max_index else 0 for label in totals.index]
 
+        # Modern color scheme using viridis colormap
+        colors = plt.cm.viridis(np.linspace(0, 1, len(totals)))
+
         # Step 4: Plot pie chart
         plt.figure(figsize=(10,7))
-        plt.pie(totals, 
+        plt.pie(totals,
             labels=totals.index,
-            autopct='%1.1f%%', 
+            autopct='%1.1f%%',
             startangle=90,
             explode=explode,
-            shadow=False,
+            shadow=True,
+            colors=colors,
             textprops={'fontsize':12, 'color':'black', 'fontweight':'bold'},
             wedgeprops={'edgecolor':'black','linewidth':1})
-        plt.title("Station Delay Distribution", fontsize=16, pad= 30,fontweight='bold', color='purple')
+        plt.title("Station Delay Distribution", fontsize=16, pad= 30,fontweight='bold', color='#002A4D')
         plt.axis('equal')  # Ensures pie is circular
+        plt.legend(totals.index, loc="best")
         plt.show()
-        
 
 
-def main(): 
+
+def main():
     # Load Excel file
     file_path = "./CycleTimeBackup/" + '15-08-2025'+ ".xlsx"  # your actual file path
-    sheet_name = '15-08-2025'    # your sheet name 
+    sheet_name = '15-08-2025'    # your sheet name
 
     # Read the Excel file
-    df = pd.read_excel(file_path,index_col=0)
+    df = pd.read_excel(file_path, index_col=0)
     graph = GraphPlotter()
     graph.pie_graph(df, cycle_time=95)
 
