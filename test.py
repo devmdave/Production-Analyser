@@ -1,3 +1,4 @@
+from operator import index
 import sys
 import random
 from matplotlib import pyplot as plt
@@ -24,6 +25,7 @@ import os
 import pandas as pd
 import my_plc
 import time
+from Graph import GraphPlotter
 from summary_card import SummaryCard
 from PyQt5.QtCore import QThread, pyqtSignal
 
@@ -452,55 +454,45 @@ class Dashboard(QMainWindow):
 
         #menu bar actions
         self.view_cycle_action = QAction("Veiw Backup Data", self)
-        cycle_menu.addAction(self.view_cycle_action)
-
         self.view_current_cycle_action = QAction("Veiw Current Data", self)
+        self.view_current_fault_action = QAction("View Fault Delay (Current)", self)
+        self.view_backup_fault_action = QAction("View Fault Delay (Backup)", self)
+        self.tip_dressing_action = QAction("Tip Dress Data",self) # show tip dressing data 
+        self.tip_change_action = QAction("Tip Change Data",self)
+        self.edit_stationfault_tag_action = QAction("Station Fault Tag",self)
+        self.edit_faultdelay_tag_action = QAction("Fault Delay Tag",self) 
+        self.edit_cycletime_tag_action = QAction("Cycle time Tag",self) 
+        self.edit_tipdress_tag_action = QAction("Tip Dress Tag",self) 
+        self.edit_tipchange_tag_action = QAction("Tip Change Tag",self)
+        self.edit_dashboard_tag_action = QAction("Dashboard Tag",self)
+        self.set_backup_time = QAction("Set New Backup Time", self)
+        self.get_backup_time = QAction("Show Saved Backup Time", self)
+
+
+
+        cycle_menu.addAction(self.view_cycle_action)        
         cycle_menu.addAction(self.view_current_cycle_action)
 
-        self.view_current_fault_action = QAction("View Fault Delay (Current)", self)
-        fault_menu.addAction(self.view_current_fault_action)
+        fault_menu.addAction(self.view_current_fault_action)        
+        fault_menu.addAction(self.view_backup_fault_action)        
 
-        self.view_backup_fault_action = QAction("View Fault Delay (Backup)", self)
-        fault_menu.addAction(self.view_backup_fault_action)
-        
-        self.tip_dressing_action = QAction("Tip Dress Data",self) # show tip dressing data 
-        tip_dress_menu.addAction(self.tip_dressing_action)
-        
-        self.tip_change_action = QAction("Tip Change Data",self)
-        tip_dress_menu.addAction(self.tip_change_action)
+        tip_dress_menu.addAction(self.tip_dressing_action)        
+        tip_dress_menu.addAction(self.tip_change_action)        
 
-        self.edit_cycletime_tag_action = QAction("Cycle time Tag",self) 
-        edit_tag_menu.addAction(self.edit_cycletime_tag_action)
-
-        self.edit_stationfault_tag_action = QAction("Station Fault Tag",self) 
+        edit_tag_menu.addAction(self.edit_cycletime_tag_action)            
         edit_tag_menu.addAction(self.edit_stationfault_tag_action)
-
-        self.edit_faultdelay_tag_action = QAction("Fault Delay Tag",self) 
         edit_tag_menu.addAction(self.edit_faultdelay_tag_action)
-
-        self.edit_tipdress_tag_action = QAction("Tip Dress Tag",self) 
-        edit_tag_menu.addAction(self.edit_tipdress_tag_action)
-
-        self.edit_tipchange_tag_action = QAction("Tip Change Tag",self) 
-        edit_tag_menu.addAction(self.edit_tipchange_tag_action)
-
-        self.edit_dashboard_tag_action = QAction("Dashboard Tag",self) 
+        edit_tag_menu.addAction(self.edit_tipdress_tag_action) 
+        edit_tag_menu.addAction(self.edit_tipchange_tag_action)         
         edit_tag_menu.addAction(self.edit_dashboard_tag_action)
-
-        self.view_current_cycle_action.triggered.connect(lambda: (self.cycletime_current_layout(), self.start_task()))
-        self.view_cycle_action.triggered.connect(lambda: self.cycletime_backup_layout())
-        # self.view_current_cycle_action.triggered.connect(lambda: self.cycletime_current_layout())
-
-        self.set_backup_time = QAction("Set New Backup Time", self)
-        self.set_backup_time.triggered.connect(lambda: self.dlg.show()) #Placeholder action
         
+        setting_menu.addAction(self.get_backup_time)
         setting_menu.addAction(self.set_backup_time)
 
-        self.get_backup_time = QAction("Show Saved Backup Time", self)
-        self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) #Placeholder action
-                
-        setting_menu.addAction(self.get_backup_time)
-
+        self.view_current_cycle_action.triggered.connect(lambda: (self.cycletime_current_layout(), self.start_task()))
+        self.view_cycle_action.triggered.connect(lambda: self.cycletime_backup_layout())        
+        self.set_backup_time.triggered.connect(lambda: self.dlg.show()) #Placeholder action        
+        self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) #Placeholder action                
         self.edit_cycletime_tag_action.triggered.connect(lambda: self.edit_cycle_time_tags())
         self.edit_faultdelay_tag_action.triggered.connect(lambda: self.edit_fault_delay_tags())
         self.edit_stationfault_tag_action.triggered.connect(lambda: self.edit_fault_delay_tags())
@@ -772,8 +764,8 @@ class Dashboard(QMainWindow):
         layout.addWidget(list_view)
 
     def list_view_item_clicked(self, index):
-        self.cycletime_current_layout()
         self.file_path = "./CycleTimeBackup/" + self.model.data(index, 0)+ ".xlsx"
+        self.cycletime_current_layout()
         self.currentfile_path = self.file_path
         self.file_name_label.setText(f"Record Dated: {self.model.data(index,0)}")
         self.load_data_to_veiw()
@@ -811,19 +803,19 @@ class Dashboard(QMainWindow):
         back_button.clicked.connect(lambda : self.reinitialize_dashboard())
 
 
-        # Create graph button to show graph
-        # graph_button = QPushButton("Pie Chart")
-        # df = pd.read_excel(self.file_path)
-        # print(self.file_path)
-        # print(self.currentfile_path)
-        # graph_button.clicked.connect(lambda : print(df))
+        #Create graph button to show graph
+        print(self.file_path)
+        graph_button = QPushButton("Pie Chart")
+        df = pd.read_excel(self.file_path,index_col=0)
+        graph = GraphPlotter()
+        graph_button.clicked.connect(lambda : graph.pie_graph(df, self.cycle_time))
                                     
 
         # Create cycle time input
         cycle_label = QLabel("Cycle Time:")
-        cycle_label.setFont(QFont("Arial", 10, QFont.Bold))
+        cycle_label.setFont(QFont("Arial", 8, QFont.Bold))
         self.cycle_input = QLineEdit()
-        self.cycle_input.setFixedWidth(100)
+        self.cycle_input.setFixedWidth(100) 
         self.cycle_input.setText(str(self.cycle_time))  # Default value
         self.cycle_input.setPlaceholderText("Enter cycle time")
         self.cycle_input.returnPressed.connect(self.load_data_to_veiw)
@@ -846,7 +838,7 @@ class Dashboard(QMainWindow):
         spacer = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         control_panel.addWidget(back_button, alignment=Qt.AlignLeft)
-        #control_panel.addWidget(graph_button, alignment=Qt.AlignLeft)
+        control_panel.addWidget(graph_button, alignment=Qt.AlignLeft)
         control_panel.addWidget(cycle_label, alignment=Qt.AlignLeft)
         control_panel.addWidget(self.cycle_input, alignment=Qt.AlignLeft)
         control_panel.addItem(spacer)
@@ -1039,39 +1031,6 @@ class Dashboard(QMainWindow):
 
     def reinitialize_dashboard(self):
         self.initialise_dashboard()
-
-    def pie_graph(self,df):
-
-        # Convert to dictionary of lists
-        #df= (df - cycle_time).clip(lower=0)
-
-        data = df.T.to_dict(orient="list")
-        print(data)
-    
-        # Step 2: Convert to DataFrame and transpose
-        df = pd.DataFrame(data).T
-
-        # Step 3: Sum each row to get total per UBG label
-        totals = df.sum(axis=1)
-        # Find index of largest slice
-        max_index = totals.idxmax()
-        # Create explode list: 0 for others, 0.1 for largest
-        explode = [0.2 if label == max_index else 0 for label in totals.index]
-
-        # Step 4: Plot pie chart
-        plt.figure(figsize=(10,7))
-        plt.pie(totals, 
-            labels=totals.index,
-            autopct='%1.1f%%', 
-            startangle=90,
-            explode=explode,
-            shadow=False,
-            textprops={'fontsize':12, 'color':'black', 'fontweight':'bold'},
-            wedgeprops={'edgecolor':'black','linewidth':1})
-        plt.title("UBG Delay Distribution", fontsize=16, pad= 30,fontweight='bold', color='purple')
-        plt.axis('equal')  # Ensures pie is circular
-        plt.show()
-        
 
 
 def main():
