@@ -17,10 +17,9 @@ Whether you're simulating data with a mock PLC server or deploying in a live fac
 
 ---
 
-<div align="center">
-  <img src="https://drive.google.com/uc?export=view&id=174BUv3s0JJCkMZXmqGE9BSfEaLBHQ__C" alt="Dashboard Preview" width="70%">
+  ![Description of image](https://drive.google.com/uc?export=view&id=FILE_ID)
   <p><em>Real-time fault analysis dashboard—your production line, visualized.</em></p>
-</div>
+
 
 ---
 
