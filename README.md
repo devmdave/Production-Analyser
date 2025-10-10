@@ -63,5 +63,5 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 ```
-🌟 Acknowledgements
+## 🌟 Acknowledgements
 Built with love using open-source magic: PyQt5, pandas, and NumPy. Inspired by industrial IoT challenges at hackathons and real-world deployments. Thanks to the Python community for tools that make automation accessible.
