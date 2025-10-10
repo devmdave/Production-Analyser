@@ -805,7 +805,7 @@ class Dashboard(QMainWindow):
 
         #Create graph button to show graph
         print(self.file_path)
-        graph_button = QPushButton("Pie Chart")
+        graph_button = QPushButton("Show Pie Chart Analysis")
         df = pd.read_excel(self.file_path,index_col=0)
         graph = GraphPlotter()
         graph_button.clicked.connect(lambda : graph.pie_graph(df, self.cycle_time))
@@ -838,7 +838,6 @@ class Dashboard(QMainWindow):
         spacer = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         control_panel.addWidget(back_button, alignment=Qt.AlignLeft)
-        control_panel.addWidget(graph_button, alignment=Qt.AlignLeft)
         control_panel.addWidget(cycle_label, alignment=Qt.AlignLeft)
         control_panel.addWidget(self.cycle_input, alignment=Qt.AlignLeft)
         control_panel.addItem(spacer)
@@ -857,6 +856,7 @@ class Dashboard(QMainWindow):
         # Add tables to their respective frames
         self.left_frame.layout().addWidget(self.table1)
         self.middle_frame.layout().addWidget(self.table2)
+        self.middle_frame.layout().addWidget(graph_button)
         self.right_frame.layout().addWidget(self.table3)
 
 
