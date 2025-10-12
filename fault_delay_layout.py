@@ -4,7 +4,7 @@ from numpy import result_type, true_divide
 import pandas as pd
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTableWidget, QTableWidgetItem,
-    QVBoxLayout, QHBoxLayout, QWidget, QLabel,QHeaderView
+    QVBoxLayout, QHBoxLayout, QWidget, QLabel, QHeaderView, QPushButton
 )
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import Qt
@@ -19,21 +19,34 @@ custom_headers2 = ['Station', 'Fault Delay']
 
 
 class CurrentFaultDelay(QMainWindow):
-    def __init__(self):
+    def __init__(self, backup_file=None):
         super().__init__()
         self.setWindowTitle("Production Analyser")
         self.setGeometry(100, 100, 900, 400)  # Decreased window size
 
         # --- File name label at the top ---
-        self.file_name_label = QLabel(f"File: {'No file selected'}")
+        if backup_file:
+            self.file_name_label = QLabel(f"File: {backup_file}")
+        else:
+            self.file_name_label = QLabel("File: Today's Data")
         self.file_name_label.setFont(QFont('Arial', 12, QFont.Bold))
         self.file_name_label.setStyleSheet("padding: 8px; color: #1a237e; background: #e3f2fd; border-radius: 6px;")
+
+        # --- Back button ---
+        self.back_button = QPushButton("Back")
+        self.back_button.clicked.connect(self.close)
+        self.back_button.setFixedWidth(100)
+
+        # --- Top layout for label and back button ---
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(self.file_name_label, alignment=Qt.AlignLeft)
+        top_layout.addWidget(self.back_button, alignment=Qt.AlignRight)
 
         # --- Main layout ---
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
-        main_layout.addWidget(self.file_name_label, alignment=Qt.AlignTop)
+        main_layout.addLayout(top_layout)
 
         # --- Two frames side by side ---
         frames_layout = QHBoxLayout()
@@ -87,19 +100,26 @@ class CurrentFaultDelay(QMainWindow):
         # Add frames layout to the main layout
         main_layout.addLayout(frames_layout)
 
-        # Example: populate tables with dummy data
-        df = pd.read_excel('./DelayBackup/dummy.xlsx')
+        # dw = my_plc.data_writer()
+        # if backup_file:
+        #     print("loading backup file")
+        #     self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{backup_file}'
+        #     self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{backup_file}'
+        #     self.load_data_to_view()
+        # else:
+        #     print("loading today's file")
+        #     today_str = datetime.datetime.now().strftime('%d-%m-%Y')
+        #     self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{today_str}.xlsx'
+        #     self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{today_str}.xlsx'
 
-        self.dg = Dialog()
-        dg = self.dg.show_progress_dialog()
-        
-        self.reader_thread = threading.Thread(target=lambda: self.fetch_data(dg))
-        self.reader_thread.start()
-        # self.reader_thread.join()
-        
-        self.load_data_to_view()
-        # self.populate_table(self.fault_delay_table, df, custom_headers)
-        # self.populate_table(self.station_fault_table, df,custom_headers2)
+        #     self.dg = Dialog()
+        #     dg = self.dg.show_progress_dialog()
+            
+        #     self.reader_thread = threading.Thread(target=lambda: self.fetch_data(dg))
+        #     self.reader_thread.start()
+        #     # self.reader_thread.join()
+            
+        #     self.load_data_to_view()
 
     def populate_table(self, table, df,custom_headers):
         table.setStyleSheet("""
@@ -160,11 +180,6 @@ class CurrentFaultDelay(QMainWindow):
         return result
     
     def load_data_to_view(self):
-        dw = my_plc.data_writer()
-        
-        today_str = datetime.datetime.now().strftime('%d-%m-%Y')
-        self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{today_str}.xlsx'
-        self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{today_str}.xlsx'
         try:
             # Read Excel file using pandas
             df_fault_delay = pd.read_excel(self.fault_delay_file)

@@ -55,11 +55,12 @@ class BackupTimeDialog(QDialog):
         msg.exec_()
 
 class CustomListViewDialog(QDialog):
-    def __init__(self, items, title="Select an Item", parent=None):
+    def __init__(self, items, title="Select an Item", parent=None, on_accept_callback=None):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setMinimumWidth(350)
         self.selected_item = None
+        self.on_accept_callback = on_accept_callback
 
         layout = QVBoxLayout(self)
 
@@ -70,6 +71,8 @@ class CustomListViewDialog(QDialog):
         self.list_view = QListView()
         self.model = QStringListModel(items)
         self.list_view.setModel(self.model)
+        if self.model.rowCount() > 0:
+            self.list_view.setCurrentIndex(self.model.index(0, 0))
         layout.addWidget(self.list_view)
 
         # OK and Cancel buttons
@@ -77,17 +80,19 @@ class CustomListViewDialog(QDialog):
         button_box.accepted.connect(self.accept_selection)
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
-        self.exec_()
 
     def accept_selection(self):
+        print("Accept button clicked in dialog file")
         selected = self.list_view.selectedIndexes()
         if selected:
             self.selected_item = self.model.data(selected[0], Qt.DisplayRole)
+            print(f"Selected item: {self.selected_item}")
+            if self.on_accept_callback:
+                self.on_accept_callback(self.selected_item)
             self.accept()
         else:
             self.selected_item = None
             self.reject()
-        return selected[0].data()
 
 class Dialog:
     def __init__(self):
