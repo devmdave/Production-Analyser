@@ -288,6 +288,20 @@ class CurrentFaultDelay(QMainWindow):
                 QHeaderView::section:hover {
                     background-color: #003A5D;
                 }
+                QScrollBar:vertical {
+                    width: 8px;
+                    background-color: #f0f0f0;
+                }
+                QScrollBar::handle:vertical {
+                    background-color: #cccccc;
+                    border-radius: 4px;
+                }
+                QScrollBar::handle:vertical:hover {
+                    background-color: #aaaaaa;
+                }
+                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                    height: 0px;
+                }
             """
         else:
             return """
@@ -386,5 +400,19 @@ class CurrentFaultDelay(QMainWindow):
                 }
                 QHeaderView::section:hover {
                     background-color: #003A5D;
+                }
+                QScrollBar:vertical {
+                    width: 8px;
+                    background-color: #f0f0f0;
+                }
+                QScrollBar::handle:vertical {
+                    background-color: #cccccc;
+                    border-radius: 4px;
+                }
+                QScrollBar::handle:vertical:hover {
+                    background-color: #aaaaaa;
+                }
+                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                    height: 0px;
                 }
             """
