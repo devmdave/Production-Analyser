@@ -862,7 +862,6 @@ class Dashboard(QMainWindow):
         self.middle_frame.layout().addWidget(graph_button)
         self.right_frame.layout().addWidget(self.table3)
 
-
     def load_data_to_veiw(self):
         try:
             self.cycle_time = int(self.cycle_input.text())
@@ -919,7 +918,6 @@ class Dashboard(QMainWindow):
         self.highlight_max_values(model)
         # Adjust column widths
         table.resizeColumnsToContents()
-        
 
     def populate_table(self, table, df):
         model = QStandardItemModel()
@@ -945,7 +943,6 @@ class Dashboard(QMainWindow):
         # Adjust column widths
         table.resizeColumnsToContents()
         
-
     def populate_delay_total(self, table, df): 
         # Calculate row sums for numeric columns
         df.insert(
