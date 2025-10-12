@@ -100,12 +100,12 @@ class CurrentFaultDelay(QMainWindow):
         # Add frames layout to the main layout
         main_layout.addLayout(frames_layout)
 
-        # dw = my_plc.data_writer()
-        # if backup_file:
-        #     print("loading backup file")
-        #     self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{backup_file}'
-        #     self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{backup_file}'
-        #     self.load_data_to_view()
+        dw = my_plc.data_writer()
+        if backup_file:
+            print("loading backup file")
+            self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{backup_file}'
+            self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{backup_file}'
+            self.load_data_to_view()
         # else:
         #     print("loading today's file")
         #     today_str = datetime.datetime.now().strftime('%d-%m-%Y')
