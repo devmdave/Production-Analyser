@@ -10,12 +10,13 @@ import threading
 from datetime import datetime, timedelta
 from Layouts import MyWindow
 from MockPLCServer.mock_plc import pycomm3
+from fault_delay_layout import CurrentFaultDelay
 from PyQt5.QtCore import Qt, QTimer, QTime, QDateTime, QStringListModel
 from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
     QTextEdit, QFrame, QPushButton, QSizePolicy, QMenu, QAction, QWidget,
-    QTableView, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem
+    QTableView, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem, QDialog
 )
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget
 from dashboard_parameter_manager import ParameterManagerWindow
@@ -490,9 +491,11 @@ class Dashboard(QMainWindow):
         setting_menu.addAction(self.set_backup_time)
 
         self.view_current_cycle_action.triggered.connect(lambda: (self.cycletime_current_layout(), self.start_task()))
-        self.view_cycle_action.triggered.connect(lambda: self.cycletime_backup_layout())        
-        self.set_backup_time.triggered.connect(lambda: self.dlg.show()) #Placeholder action        
-        self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) #Placeholder action                
+        self.view_cycle_action.triggered.connect(lambda: self.cycletime_backup_layout())
+        self.view_current_fault_action.triggered.connect(lambda: self.show_current_fault_delay())
+        self.view_backup_fault_action.triggered.connect(lambda: self.show_backup_fault_delay())
+        self.set_backup_time.triggered.connect(lambda: self.dlg.show()) #Placeholder action
+        self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) #Placeholder action
         self.edit_cycletime_tag_action.triggered.connect(lambda: self.edit_cycle_time_tags())
         self.edit_faultdelay_tag_action.triggered.connect(lambda: self.edit_fault_delay_tags())
         self.edit_stationfault_tag_action.triggered.connect(lambda: self.edit_fault_delay_tags())
@@ -1032,6 +1035,20 @@ class Dashboard(QMainWindow):
     def reinitialize_dashboard(self):
         self.initialise_dashboard()
 
+    def show_current_fault_delay(self):
+        self.fault_window = CurrentFaultDelay()
+        self.fault_window.show()
+
+    def show_backup_fault_delay(self):
+        files = os.listdir("FaultDelayBackup") if os.path.exists("FaultDelayBackup") else []
+        dialog = CustomListViewDialog(files, on_accept_callback=self.on_fault_selected)
+        dialog.exec_()
+
+    def on_fault_selected(self, selected_file):
+        if selected_file:
+            self.fault_window = CurrentFaultDelay(backup_file=selected_file)
+            self.fault_window.show()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Run test.py with plc or no-plc mode")
@@ -1046,4 +1063,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main() 
