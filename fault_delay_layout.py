@@ -99,20 +99,18 @@ class CurrentFaultDelay(QMainWindow):
             self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{backup_file}'
             self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{backup_file}'
             self.load_data_to_view()
-        # else:
-        #     print("loading today's file")
-        #     today_str = datetime.datetime.now().strftime('%d-%m-%Y')
-        #     self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{today_str}.xlsx'
-        #     self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{today_str}.xlsx'
+        else:
+            print("loading today's file")
+            today_str = datetime.datetime.now().strftime('%d-%m-%Y')
+            self.fault_delay_file = f'./{dw.FAULT_DELAY_BACKUP_DIR}/{today_str}.xlsx'
+            self.station_fault_file = f'./{dw.STATION_FAULT_DIR}/{today_str}.xlsx'
 
-        #     self.dg = Dialog()
-        #     dg = self.dg.show_progress_dialog()
+            self.dg = Dialog()
+            dg = self.dg.show_progress_dialog()
             
-        #     self.reader_thread = threading.Thread(target=lambda: self.fetch_data(dg))
-        #     self.reader_thread.start()
-        #     # self.reader_thread.join()
+            self.reader_thread = threading.Thread(target=lambda: self.fetch_data(dg))
+            self.reader_thread.start()
             
-        #     self.load_data_to_view()
 
     def populate_table(self, table, df,custom_headers):
         table.setRowCount(len(df))
@@ -131,6 +129,8 @@ class CurrentFaultDelay(QMainWindow):
         self.load_fault_delay_data()
         self.load_station_fault_data()
         dg.close()
+        self.load_data_to_view()
+
         
     def load_fault_delay_data(self):
         result = False
@@ -177,8 +177,7 @@ class CurrentFaultDelay(QMainWindow):
                 self.dg = Dialog()
                 self.dg.show_plc_connection_error()
         except FileNotFoundError as e:
-            self.dg = Dialog()
-            self.dg.show_error_dialog()
+                pass
 
     def _toggle_mode(self):
         self.dark_mode = not self.dark_mode
