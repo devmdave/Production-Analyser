@@ -735,11 +735,13 @@ class Dashboard(QMainWindow):
         header_label.setStyleSheet(
             "font-size: 14px; font-weight: normal; padding-bottom: 8px;"
         )
+        print(files)
         for file in files:
-            files.remove(file)
-            file = file.replace(".xlsx", "")
-            files.append(file)
-             
+            new_file = file.replace(".xlsx","")
+            files[files.index(file)] = new_file
+
+
+        print(files)  
         self.model = QStringListModel(files)
         # List view
         list_view = QListView()
@@ -807,11 +809,9 @@ class Dashboard(QMainWindow):
 
 
         #Create graph button to show graph
-        print(self.file_path)
-        graph_button = QPushButton("Show Pie Chart Analysis")
-        df = pd.read_excel(self.file_path,index_col=0)
-        graph = GraphPlotter()
-        graph_button.clicked.connect(lambda : graph.pie_graph(df, self.cycle_time))
+        self.graph_button = QPushButton("Show Pie Chart Analysis")
+        #df = pd.read_excel(self.file_path,index_col=0)
+
                                     
 
         # Create cycle time input
@@ -859,14 +859,16 @@ class Dashboard(QMainWindow):
         # Add tables to their respective frames
         self.left_frame.layout().addWidget(self.table1)
         self.middle_frame.layout().addWidget(self.table2)
-        self.middle_frame.layout().addWidget(graph_button)
+        self.middle_frame.layout().addWidget(self.graph_button,alignment=Qt.AlignCenter)
         self.right_frame.layout().addWidget(self.table3)
 
     def load_data_to_veiw(self):
         try:
             self.cycle_time = int(self.cycle_input.text())
             # Read Excel file using pandas
-            df = pd.read_excel(self.file_path)
+            df = pd.read_excel(self.file_path,index_col=0)
+            graph = GraphPlotter()
+            self.graph_button.clicked.connect(lambda : graph.pie_graph(df, self.cycle_time))
             #plit the dataframe into three parts
             if not df.empty:
                 df.columns.values[0] = "Station No"
