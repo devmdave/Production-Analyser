@@ -114,8 +114,8 @@ class Dashboard(QMainWindow):
         self.Dialog = Dialog()
         self.dlg = BackupTimeDialog()
         self.edit_cyctime_win = TagManagerWindow(json_path="plc_custom_user_tags\\cycle_time_tags.json")
-        self.edit_fault_delay_win = TagManagerWindow(json_path="plc_custom_user_tags\\station_fault_tags.json")
-        self.edit_station_fault_win = TagManagerWindow(json_path="plc_custom_user_tags\\fault_delay_tags.json")
+        self.edit_fault_delay_win = TagManagerWindow(json_path="plc_custom_user_tags\\fault_delay_tags.json")
+        self.edit_station_fault_win = TagManagerWindow(json_path="plc_custom_user_tags\\station_fault_tags.json")
         self.edit_tip_dress_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_tip_change_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_dashboard_win = ParameterManagerWindow(json_path="plc_custom_user_tags\\dashboard_tags.json")
@@ -498,7 +498,7 @@ class Dashboard(QMainWindow):
         self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) #Placeholder action
         self.edit_cycletime_tag_action.triggered.connect(lambda: self.edit_cycle_time_tags())
         self.edit_faultdelay_tag_action.triggered.connect(lambda: self.edit_fault_delay_tags())
-        self.edit_stationfault_tag_action.triggered.connect(lambda: self.edit_fault_delay_tags())
+        self.edit_stationfault_tag_action.triggered.connect(lambda: self.edit_station_fault_tags())
         self.edit_tipchange_tag_action.triggered.connect(lambda: self.edit_tip_change_tags())
         self.edit_tipdress_tag_action.triggered.connect(lambda:self.edit_tip_dress_tags())
         self.edit_dashboard_tag_action.triggered.connect(lambda:self.edit_dashboard_tags())
@@ -866,9 +866,11 @@ class Dashboard(QMainWindow):
         try:
             self.cycle_time = int(self.cycle_input.text())
             # Read Excel file using pandas
-            df = pd.read_excel(self.file_path,index_col=0)
+            df = pd.read_excel(self.file_path)
+            df_graph = pd.read_excel(self.file_path,index_col=0)
+
             graph = GraphPlotter()
-            self.graph_button.clicked.connect(lambda : graph.pie_graph(df, self.cycle_time))
+            self.graph_button.clicked.connect(lambda : graph.pie_graph(df_graph, self.cycle_time))
             #plit the dataframe into three parts
             if not df.empty:
                 df.columns.values[0] = "Station No"
