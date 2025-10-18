@@ -155,7 +155,35 @@ class Plc:
                     if self.plc.connected:
                         for index, tag in enumerate(tags):
                             tags_data[stations[index]] = self.plc.read(tag).value
-                            
+
+                    else:
+                        pass
+        except Exception as e:
+            pass
+        return tags_data
+
+    def read_tip_dress_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+
+                with LogixDriver(self.ip) as self.plc:
+                    if self.plc.connected:
+                        for index, tag in enumerate(tags):
+                            tags_data[stations[index]] = self.plc.read(tag).value
                     else:
                         pass
         except Exception as e:
@@ -181,6 +209,7 @@ class data_writer:
     FAULT_DELAY_BACKUP_DIR = "FaultDelayBackup"
     CYCLETIME_BACKUP_DIR = "CycleTimeBackup"
     STATION_FAULT_DIR = "StationFaultBackup"
+    TIP_DRESS_BACKUP_DIR = "TipDressBackup"
 
     def __init__(self):
         pass
