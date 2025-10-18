@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QHBoxLayout, QWidget, QLabel, QHeaderView, QPushButton, QMessageBox
 )
+from MockPLCServer.mock_plc import pycomm3
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from Dialog import Dialog
@@ -36,7 +37,9 @@ class Worker(QObject):
         result = False
         try:
             print("trying to connect")
-            plc = my_plc.Plc('192.168.0.10')
+            # plc = my_plc.Plc('192.168.0.10')
+            # tags_data = plc.read_tip_dress_tags()
+            plc = pycomm3()
             tags_data = plc.read_tip_dress_tags()
             dw = my_plc.data_writer()
             dw.write_to_excel(tags_data, dw.TIP_DRESS_BACKUP_DIR)

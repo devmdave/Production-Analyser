@@ -1,15 +1,10 @@
-# TODO: Create Fault Delay Window with Back Button
+# TODO for Tip Dress Tag Manager
 
-## Step 1: Modify fault_delay_layout.py
-- Add back button to CurrentFaultDelay.__init__ layout (QPushButton("Back").clicked.connect(self.close)).
-- Modify __init__ to accept optional file_path param (default today's fault files).
-- Update load_data_to_view to use passed file_path if provided.
-
-## Step 2: Modify test.py
-- Import fault_delay_layout.
-- Connect view_current_fault_action.triggered to show CurrentFaultDelay().
-- Connect view_backup_fault_action.triggered to show file selection dialog (CustomListViewDialog with files from FaultDelayBackup/), then show CurrentFaultDelay(selected_file).
-
-## Step 3: Test
-- Run test.py, select Fault Delay > View Fault Delay (Current), verify window shows two tables with data, back button closes and returns to dashboard.
-- Select View Fault Delay (Backup), verify file list, select file, window shows data from selected file.
+- [x] Create TipDressTagManager.py file based on TagManager.py, adapted for tip dress with combo box for tag type (Set Tag or Actual Tag).
+- [x] Modify the dialog to include Robot Name input, Tag Type combo box, and Tag Name input.
+- [x] Update table headers to Robot Name, Tag Type, Tag Name.
+- [x] Implement loading data from both set_names_tags.json and actual_names_tags.json, distinguishing set and actual tags.
+- [x] Implement adding tags: Based on combo selection, save to the appropriate JSON file under the robot name.
+- [x] Implement deleting and editing tags, updating the corresponding JSON files.
+- [ ] Test the manager to ensure tags are saved correctly to the JSON files.
+- [ ] Verify no integration needed with tip_dress_layout.py as it's separate.
