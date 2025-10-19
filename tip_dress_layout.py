@@ -7,9 +7,12 @@ from PyQt5.QtWidgets import (
 from MockPLCServer.mock_plc import pycomm3
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
+
 from Dialog import Dialog
 import my_plc
 import datetime
+
+
 
 custom_headers = ['ROBOT NAME', 'SET VALUE', 'ACTUAL VALUE']
 
@@ -37,10 +40,10 @@ class Worker(QObject):
         result = False
         try:
             print("trying to connect")
-            # plc = my_plc.Plc('192.168.0.10')
-            # tags_data = plc.read_tip_dress_tags()
-            plc = pycomm3()
+            plc = my_plc.Plc('192.168.0.10')
             tags_data = plc.read_tip_dress_tags()
+            #plc = pycomm3() mock plc for testing without hardware
+            #tags_data = plc.read_tip_dress_tags()
             dw = my_plc.data_writer()
             dw.write_to_excel(tags_data, dw.TIP_DRESS_BACKUP_DIR)
             result = True
@@ -82,13 +85,13 @@ class CurrentTipDress(QMainWindow):
         super().__init__()
         self.dark_mode = True
         self.setWindowTitle("Production Analyser")
-        self.setGeometry(100, 100, 600, 400)  # Adjusted window size
+        self.setGeometry(100, 100, 450, 300)  # Adjusted window size
 
         # --- File name label at the top ---
         self.file_name_label = QLabel("Date: Today's Data")
 
-        self.file_name_label.setFont(QFont('Arial', 12, QFont.Bold))
-        self.file_name_label.setStyleSheet("padding: 8px; color: #1a237e; background: #e3f2fd; border-radius: 6px;")
+        self.file_name_label.setFont(QFont('Arial', 7, QFont.Bold))
+        self.file_name_label.setStyleSheet(" background-color: white; border: none; color: black; padding: 7px 14px; border-radius: 8px;font-weight: bold;") # ("padding: 8px; color: #1a237e; background: #e3f2fd; border-radius: 6px;")
 
         # --- Mode toggle button ---
         self.mode_toggle_btn = QPushButton("Switch to Light Mode")
@@ -122,6 +125,7 @@ class CurrentTipDress(QMainWindow):
         layout.addWidget(label)
         self.tip_dress_table = QTableWidget()
         self.tip_dress_table.setFixedHeight(300)
+        self.tip_dress_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addWidget(self.tip_dress_table)
 
         # Add frame to main layout
