@@ -52,6 +52,10 @@ class Worker(QObject):
             result = True
         except Exception as e:
             result = False
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_load_fault_delay.txt", "a") as file:
+                file.write(error_message)
         return result
 
     def load_station_fault_data(self):
@@ -65,6 +69,10 @@ class Worker(QObject):
             result = True
         except Exception as e:
             result = False
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_station_fault_delay.txt", "a") as file:
+                file.write(error_message)
         return result
 
     def load_data_to_view(self):
@@ -82,8 +90,13 @@ class Worker(QObject):
                 self.populate_table(self.station_fault_table, df_station_fault, custom_headers2)
                 return True
             else:
+                print("No data available in one or both files.")
                 return False
         except FileNotFoundError:
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_loading_data.txt", "a") as file:
+                file.write(error_message)
             return False
 
     def populate_table(self, table, df, custom_headers):
@@ -222,6 +235,10 @@ class CurrentFaultDelay(QMainWindow):
             result = True
         except Exception as e:
             result = False
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_load_fault_delay.txt", "a") as file:
+                file.write(error_message)
 
         return result
     def load_station_fault_data(self):
@@ -235,6 +252,10 @@ class CurrentFaultDelay(QMainWindow):
             result = True
         except Exception as e:
             result = False
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_station_fault_delay.txt", "a") as file:
+                file.write(error_message)
 
         return result
     
@@ -255,8 +276,14 @@ class CurrentFaultDelay(QMainWindow):
             else:
                 # self.dg = Dialog()
                 # self.dg.show_plc_connection_error()
+                print("No data available in one or both files.")
                 return False
+
         except FileNotFoundError as e:
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_loading_data.txt", "a") as file:
+                file.write(error_message)
             return False
 
     def _toggle_mode(self):
