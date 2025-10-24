@@ -34,18 +34,47 @@ Whether you're simulating data with a mock PLC server or deploying in a live fac
 
 ---
 
-## 🛠 Tech Stack
-
-| Category         | Technologies                     |
-|------------------|----------------------------------|
-| Language         | Python 3.x                       |
-| GUI Framework    | PyQt5                            |
-| Data Handling    | pandas, NumPy                    |
-| Configuration    | JSON, Excel (via openpyxl)       |
-| Visualization    | Matplotlib (integrated with PyQt5) |
-| Async Polling    | asyncio                          |
-
----
+<table align="center">
+  <tr>
+    <th colspan="2" align="center">
+      <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&duration=2500&pause=800&color=00FFF5&center=true&vCenter=true&width=435&lines=⚙️+Tech+Stack+Overview" alt="Tech Stack Header"/>
+    </th>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Category-%F0%9F%93%9A-blueviolet?style=for-the-badge" alt="Category"/></td>
+    <td align="center"><img src="https://img.shields.io/badge/Technologies-%F0%9F%92%BB-00FFF5?style=for-the-badge" alt="Technologies"/></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Language-%F0%9F%90%8D%20Python%203.x-3776AB?style=for-the-badge&logo=python&logoColor=yellow" alt="Language"/></td>
+    <td align="center"><img src="https://img.shields.io/badge/Python%203.x-%230077B5?style=for-the-badge&logo=python&logoColor=F7DF1E" alt="Python"/></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/GUI%20Framework-%F0%9F%8E%A8%20PyQt5-41CD52?style=for-the-badge&logo=qt&logoColor=white" alt="GUI"/></td>
+    <td align="center"><img src="https://img.shields.io/badge/PyQt5-%2300C853?style=for-the-badge&logo=qt&logoColor=white" alt="PyQt5"/></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Data%20Handling-%F0%9F%93%88%20pandas%2C%20NumPy-FF69B4?style=for-the-badge&logo=pandas&logoColor=white" alt="Data Handling"/></td>
+    <td align="center">
+      <img src="https://img.shields.io/badge/pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="pandas"/>
+      <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Configuration-%E2%9A%99%EF%B8%8F%20JSON%2C%20Excel%20(via%20openpyxl)-FFB300?style=for-the-badge&logo=json&logoColor=white" alt="Configuration"/></td>
+    <td align="center">
+      <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" alt="JSON"/>
+      <img src="https://img.shields.io/badge/openpyxl-217346?style=for-the-badge&logo=microsoft-excel&logoColor=white" alt="Excel"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Visualization-%F0%9F%93%8A%20Matplotlib%20(integrated%20with%20PyQt5)-F50057?style=for-the-badge&logo=plotly&logoColor=white" alt="Visualization"/></td>
+    <td align="center"><img src="https://img.shields.io/badge/Matplotlib-11557C?style=for-the-badge&logo=plotly&logoColor=white" alt="Matplotlib"/></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Async%20Polling-%E2%9C%A8%20asyncio-0088CC?style=for-the-badge&logo=python&logoColor=yellow" alt="Async"/></td>
+    <td align="center"><img src="https://img.shields.io/badge/asyncio-00599C?style=for-the-badge&logo=python&logoColor=yellow" alt="asyncio"/></td>
+  </tr>
+</table>
 
 ## 📦 Installation
 
