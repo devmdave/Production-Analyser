@@ -190,7 +190,10 @@ class data_writer:
         os.makedirs(directory, exist_ok=True)
         # Convert dictionary to DataFrame
         if len(tags_data) > 0:
-            df = pd.DataFrame(tags_data)
+            if directory != self.CYCLETIME_BACKUP_DIR:
+                df = pd.DataFrame([tags_data])
+            else:
+                df = pd.DataFrame(tags_data)
             df.index = range(1, len(df) + 1)
             # Transpose the DataFrame to have tags as rows and their values as columns
             df = df.transpose()
