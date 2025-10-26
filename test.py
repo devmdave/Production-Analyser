@@ -73,7 +73,6 @@ class WorkerThread(QThread):
         except Exception as e:
             print("Exception occured in Worker Thread:\n" + str(e))
 
-        time.sleep(3)  # Simulate a long task
         self.finished.emit()
 
 class CustomTimeEdit(QTimeEdit):
