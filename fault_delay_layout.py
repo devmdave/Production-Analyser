@@ -13,6 +13,7 @@ import my_plc
 import threading
 import datetime
 import time
+from MockPLCServer.mock_plc import pycomm3
 
 custom_headers = ['Faults', 'Delay']
 custom_headers2 = ['Station', 'Fault Delay']
@@ -93,6 +94,12 @@ class Worker(QObject):
                 print("No data available in one or both files.")
                 return False
         except FileNotFoundError:
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_loading_data.txt", "a") as file:
+                file.write(error_message)
+            return False
+        except Exception as e:
             error_message = f"Error occurred: {e}\n"
             print(error_message)  # Print to console
             with open("error_log_in_loading_data.txt", "a") as file:
@@ -210,19 +217,6 @@ class CurrentFaultDelay(QMainWindow):
             self.worker.finished.connect(self.on_worker_finished)
             self.thread.started.connect(self.worker.run)
             self.thread.start()
-
-    def populate_table(self, table, df,custom_headers):
-        table.setRowCount(len(df))
-        table.setColumnCount(len(df.columns))
-        table.setHorizontalHeaderLabels(custom_headers)
-
-        for row in range(df.shape[0]):
-            for col in range(df.shape[1]):
-                item = QTableWidgetItem(str(df.iloc[row, col]))
-                item.setTextAlignment(Qt.AlignCenter)
-                table.setItem(row, col, item)
-        table.verticalHeader().setVisible(False)
-        # table.resizeColumnsToContents()
 
     def _toggle_mode(self):
         self.dark_mode = not self.dark_mode
