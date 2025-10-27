@@ -48,7 +48,6 @@ class Worker(QObject):
             print("trying to connect")
             plc = my_plc.Plc('192.168.0.10')
             tags_data = plc.read_tip_dress_count_tags()
-            print(tags_data)
             dw = my_plc.data_writer()
             dw.write_to_excel(tags_data, dw.TIP_DRESS_COUNT_DIR)
             result = True
@@ -66,7 +65,6 @@ class Worker(QObject):
             print("trying to connect")
             plc = my_plc.Plc('192.168.0.10')
             tags_data = plc.read_last_tip_dress_tags()
-            print(tags_data)
             dw = my_plc.data_writer()
             dw.write_to_excel(tags_data, dw.LAST_TIP_DRESS_DIR)
             result = True
