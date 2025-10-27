@@ -8,10 +8,6 @@ class pycomm3:
         self.count = 500
         self.data = []
 
-<<<<<<< Updated upstream
-
-    def read_tip_dress_tags(self):
-=======
     def read_tip_dress_count_tags(self):
         # step-1 : read the json
         tags_data = {}
@@ -64,7 +60,6 @@ class pycomm3:
         return tags_data
 
     def read_station_fault_tags(self):
->>>>>>> Stashed changes
         # step-1 : read the json
         tags_data = {}
         try:
