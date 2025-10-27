@@ -157,6 +157,67 @@ class Plc:
                         for index, tag in enumerate(tags):
                             tags_data[stations[index]] = self.plc.read(tag).value
 
+<<<<<<< Updated upstream
+=======
+                    else:
+                        pass
+        except Exception as e:
+            pass
+        return tags_data
+
+    def read_tip_dress_count_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+
+                with LogixDriver(self.ip) as self.plc:
+                    if self.plc.connected:
+                        for index, tag in enumerate(tags):
+                            tags_data[stations[index]] = self.plc.read(tag).value
+
+                    else:
+                        pass
+        except Exception as e:
+            pass
+        return tags_data
+
+    def read_last_tip_dress_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+
+                with LogixDriver(self.ip) as self.plc:
+                    if self.plc.connected:
+                        for index, tag in enumerate(tags):
+                            tags_data[stations[index]] = self.plc.read(tag).value
+
+>>>>>>> Stashed changes
                     else:
                         pass
         except Exception as e:
@@ -224,7 +285,12 @@ class data_writer:
     FAULT_DELAY_BACKUP_DIR = "FaultDelayBackup"
     CYCLETIME_BACKUP_DIR = "CycleTimeBackup"
     STATION_FAULT_DIR = "StationFaultBackup"
+<<<<<<< Updated upstream
     TIP_DRESS_BACKUP_DIR = "TipDressBackup"
+=======
+    TIP_DRESS_COUNT_DIR = "TipDressCountBackup"
+    LAST_TIP_DRESS_DIR = "LastTipDressBackup"
+>>>>>>> Stashed changes
 
     def __init__(self):
         pass
@@ -244,3 +310,4 @@ class data_writer:
             today_str = datetime.datetime.now().strftime("%d-%m-%Y")
             with pd.ExcelWriter(f"./{directory}/{today_str}.xlsx") as writer:
                 df.to_excel(writer, sheet_name=today_str, index=True)
+                print("write")

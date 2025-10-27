@@ -8,8 +8,63 @@ class pycomm3:
         self.count = 500
         self.data = []
 
+<<<<<<< Updated upstream
 
     def read_tip_dress_tags(self):
+=======
+    def read_tip_dress_count_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+                
+                for index, tag in enumerate(tags):
+                    tags_data[stations[index]] = random.randint(0,100)  #self.plc.read(tag).value
+
+        except Exception as e:
+            pass
+        return tags_data
+
+
+    def read_last_tip_dress_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+
+                for index, tag in enumerate(tags):
+                    tags_data[stations[index]] = random.randint(0,100)  #self.plc.read(tag).value
+
+        except Exception as e:
+            pass
+        return tags_data
+
+    def read_station_fault_tags(self):
+>>>>>>> Stashed changes
         # step-1 : read the json
         tags_data = {}
         try:
