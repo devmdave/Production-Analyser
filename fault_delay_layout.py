@@ -13,6 +13,7 @@ import my_plc
 import threading
 import datetime
 import time
+from MockPLCServer.mock_plc import pycomm3
 
 custom_headers = ['Faults', 'Delay']
 custom_headers2 = ['Station', 'Fault Delay']
@@ -52,6 +53,10 @@ class Worker(QObject):
             result = True
         except Exception as e:
             result = False
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_load_fault_delay.txt", "a") as file:
+                file.write(error_message)
         return result
 
     def load_station_fault_data(self):
@@ -65,6 +70,10 @@ class Worker(QObject):
             result = True
         except Exception as e:
             result = False
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_station_fault_delay.txt", "a") as file:
+                file.write(error_message)
         return result
 
     def load_data_to_view(self):
@@ -82,8 +91,19 @@ class Worker(QObject):
                 self.populate_table(self.station_fault_table, df_station_fault, custom_headers2)
                 return True
             else:
+                print("No data available in one or both files.")
                 return False
         except FileNotFoundError:
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_loading_data.txt", "a") as file:
+                file.write(error_message)
+            return False
+        except Exception as e:
+            error_message = f"Error occurred: {e}\n"
+            print(error_message)  # Print to console
+            with open("error_log_in_loading_data.txt", "a") as file:
+                file.write(error_message)
             return False
 
     def populate_table(self, table, df, custom_headers):
@@ -198,67 +218,6 @@ class CurrentFaultDelay(QMainWindow):
             self.thread.started.connect(self.worker.run)
             self.thread.start()
 
-    def populate_table(self, table, df,custom_headers):
-        table.setRowCount(len(df))
-        table.setColumnCount(len(df.columns))
-        table.setHorizontalHeaderLabels(custom_headers)
-
-        for row in range(df.shape[0]):
-            for col in range(df.shape[1]):
-                item = QTableWidgetItem(str(df.iloc[row, col]))
-                item.setTextAlignment(Qt.AlignCenter)
-                table.setItem(row, col, item)
-        table.verticalHeader().setVisible(False)
-        # table.resizeColumnsToContents()
-           
-    def load_fault_delay_data(self):
-        result = False
-        try:
-            print("trying to connect")
-            plc = my_plc.Plc('192.168.0.10')
-            tags_data = plc.read_fault_delay_tags()
-            dw = my_plc.data_writer()
-            dw.write_to_excel(tags_data,dw.FAULT_DELAY_BACKUP_DIR)
-            result = True
-        except Exception as e:
-            result = False
-
-        return result
-    def load_station_fault_data(self):
-        result = False
-        try:
-            print("trying to connect")
-            plc = my_plc.Plc('192.168.0.10')
-            tags_data = plc.read_station_fault_tags()
-            dw = my_plc.data_writer()
-            dw.write_to_excel(tags_data,dw.STATION_FAULT_DIR)
-            result = True
-        except Exception as e:
-            result = False
-
-        return result
-    
-    def load_data_to_view(self):
-        try:
-            # Read Excel file using pandas
-            df_fault_delay = pd.read_excel(self.fault_delay_file)
-            df_station_fault = pd.read_excel(self.station_fault_file)
-
-            # Split the dataframe into three parts
-            if len(df_fault_delay) > 0 and len(df_station_fault) > 0:
-                df_fault_delay.columns.values[0] = "Station No"
-                df_station_fault.columns.values[0] = "Station No"
-                # Populate the three tables
-                self.populate_table(self.fault_delay_table, df_fault_delay,custom_headers)
-                self.populate_table(self.station_fault_table, df_station_fault,custom_headers2)
-                return True
-            else:
-                # self.dg = Dialog()
-                # self.dg.show_plc_connection_error()
-                return False
-        except FileNotFoundError as e:
-            return False
-
     def _toggle_mode(self):
         self.dark_mode = not self.dark_mode
         if self.dark_mode:
@@ -281,8 +240,6 @@ class CurrentFaultDelay(QMainWindow):
         if not success:
             self.dg.show_fault_delay_data_not_found_error()
         
-            
-
     def _get_stylesheet(self):
         if self.dark_mode:
             return """
