@@ -157,8 +157,6 @@ class Plc:
                         for index, tag in enumerate(tags):
                             tags_data[stations[index]] = self.plc.read(tag).value
 
-<<<<<<< Updated upstream
-=======
                     else:
                         pass
         except Exception as e:
@@ -217,7 +215,6 @@ class Plc:
                         for index, tag in enumerate(tags):
                             tags_data[stations[index]] = self.plc.read(tag).value
 
->>>>>>> Stashed changes
                     else:
                         pass
         except Exception as e:
@@ -285,12 +282,8 @@ class data_writer:
     FAULT_DELAY_BACKUP_DIR = "FaultDelayBackup"
     CYCLETIME_BACKUP_DIR = "CycleTimeBackup"
     STATION_FAULT_DIR = "StationFaultBackup"
-<<<<<<< Updated upstream
-    TIP_DRESS_BACKUP_DIR = "TipDressBackup"
-=======
     TIP_DRESS_COUNT_DIR = "TipDressCountBackup"
     LAST_TIP_DRESS_DIR = "LastTipDressBackup"
->>>>>>> Stashed changes
 
     def __init__(self):
         pass
