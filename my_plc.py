@@ -1,14 +1,8 @@
-from cProfile import label
-import random
-from tkinter.tix import ListNoteBook
 from pycomm3 import LogixDriver
 import os
 import pandas as pd
 import datetime
 import json
-from Dialog import Dialog
-from PyQt5.QtWidgets import QApplication, QDialog
-
 
 class Plc:  
     TOTAL_PRODUCTION_TAG = "UBG_LINE_PC_DAY_Total_1"
@@ -25,6 +19,8 @@ class Plc:
                 # self.disconnect()
         except Exception as e:
             self.plc_status = False
+            with open("error_log.txt", "a") as file:
+                file.write(str(e))
 
     def read_cycletime_tags(self):
         print("reading cycle time tags line 27 of my_plc.py ")
