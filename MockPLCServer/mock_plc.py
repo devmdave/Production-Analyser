@@ -2,7 +2,6 @@ import random
 import time
 import json 
 
-
 class pycomm3:
     def __init__(self):
         self.count = 500
@@ -95,14 +94,12 @@ class pycomm3:
     
         return tags_data
 
-
-
-
     def read_cycletime_tags(self,tag_name):
         print(tag_name)
         # Simulate 500 random values (e.g., integers between 0 and 1000)
         self.data = [random.randint(0, 1000) for _ in range(self.count)]
         return self.data
+    
     def read_dashboard_tags(self):
         with open('plc_custom_user_tags\\dashboard_tags.json', 'r') as f:
             data = json.load(f)
