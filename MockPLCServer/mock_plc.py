@@ -2,63 +2,100 @@ import random
 import time
 import json 
 
-
 class pycomm3:
     def __init__(self):
         self.count = 500
         self.data = []
 
+    def read_tip_dress_count_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+                
+                for index, tag in enumerate(tags):
+                    tags_data[stations[index]] = random.randint(0,100)  #self.plc.read(tag).value
+
+        except Exception as e:
+            pass
+        return tags_data
+
+
+    def read_last_tip_dress_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+
+                for index, tag in enumerate(tags):
+                    tags_data[stations[index]] = random.randint(0,100)  #self.plc.read(tag).value
+
+        except Exception as e:
+            pass
+        return tags_data
+
     def read_station_fault_tags(self):
         # step-1 : read the json
         tags_data = {}
         try:
-            file_path = "plc_custom_user_tags\\station_fault_tags.json"
-            with open(file_path, "r") as file:
-                data = json.load(file)
+            # Read set_names_tags.json
+            set_file_path = "plc_custom_user_tags\\set_names_tags.json"
+            with open(set_file_path, "r") as file:
+                set_data = json.load(file)
 
-            tags = []  # tag list is a requirement
-            stations = []
+            # Read actual_names_tags.json
+            actual_file_path = "plc_custom_user_tags\\actual_names_tags.json"
+            with open(actual_file_path, "r") as file:
+                actual_data = json.load(file)
 
-            if len(data) > 0:
-                # step-2 : generate a taglist from the json data to read it
+            # Ensure common robot names
+            common_robots = set(set_data.keys()) & set(actual_data.keys())
 
-                for i in data:
-                    tags.append(data[i][0])
-                    stations.append(i)
+            set_tags = []  # separate array for set tags
+            actual_tags = []  # separate array for actual tags
+            robots = []
 
-                for index, tag in enumerate(tags):
-                    tags_data[stations[index]] = random.randint(0,100)
+            if len(common_robots) > 0:
+                # step-2 : generate tag lists from the json data to read it
+                for robot in common_robots:
+                    set_tags.append(set_data[robot][0])
+                    actual_tags.append(actual_data[robot][0])
+                    robots.append(robot)
+                for index, robot in enumerate(robots):
+                    set_value = random.randint(1, 100) #self.plc.read(set_tags[index]).value
+                    actual_value = random.randint(1, 100) #self.plc.read(actual_tags[index]).value
+                    tags_data[robot] = [set_value, actual_value]
         except Exception as e:
             pass
+    
         return tags_data
 
-    def read_fault_delay_tags(self):
-        # step-1 : read the json
-        tags_data = {}
-        try:
-            file_path = "plc_custom_user_tags\\fault_delay_tags.json"
-            with open(file_path, "r") as file:
-                data = json.load(file)
-
-            tags = []  # tag list is a requirement
-            stations = []
-
-            if len(data) > 0:
-                # step-2 : generate a taglist from the json data to read it
-
-                for i in data:
-                    tags.append(data[i][0])
-                    stations.append(i)
-
-            
-                for index, tag in enumerate(tags):
-                    tags_data[stations[index]] = random.randint(0,100)
-        
-        except Exception as e:
-            pass
-        return tags_data
-
-    def read_cycletime_tags(self):
+    def read_cycletime_tags(self,tag_name):
+        print(tag_name)
         # Simulate 500 random values (e.g., integers between 0 and 1000)
         self.data = [random.randint(0, 1000) for _ in range(self.count)]
         return self.data

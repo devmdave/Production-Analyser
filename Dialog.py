@@ -162,6 +162,14 @@ class Dialog:
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
 
+    def show_tip_dress_data_not_found_error(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Automated Production Analyser")
+        msg.setText("Unable to retrieve tip dress data from the PLC.\nPlease check the PLC connection and ensure the data is available.")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
     def show_progress_dialog(self):
         self.dialog = QProgressDialog("PLease Wait while we are loading PLC Data ...", None, 0, 0)
         self.dialog.setWindowTitle("Fetching Data")

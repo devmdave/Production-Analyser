@@ -1,4 +1,5 @@
 from cProfile import label
+import random
 from tkinter.tix import ListNoteBook
 from pycomm3 import LogixDriver
 import os
@@ -155,11 +156,111 @@ class Plc:
                     if self.plc.connected:
                         for index, tag in enumerate(tags):
                             tags_data[stations[index]] = self.plc.read(tag).value
-                            
+
                     else:
                         pass
         except Exception as e:
             pass
+        return tags_data
+
+    def read_tip_dress_count_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+
+                with LogixDriver(self.ip) as self.plc:
+                    if self.plc.connected:
+                        for index, tag in enumerate(tags):
+                            tags_data[stations[index]] = self.plc.read(tag).value
+
+                    else:
+                        pass
+        except Exception as e:
+            pass
+        return tags_data
+
+    def read_last_tip_dress_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            tags = []  # tag list is a requirement
+            stations = []
+
+            if len(data) > 0:
+                # step-2 : generate a taglist from the json data to read it
+
+                for i in data:
+                    tags.append(data[i][0])
+                    stations.append(i)
+
+                with LogixDriver(self.ip) as self.plc:
+                    if self.plc.connected:
+                        for index, tag in enumerate(tags):
+                            tags_data[stations[index]] = self.plc.read(tag).value
+
+                    else:
+                        pass
+        except Exception as e:
+            pass
+        return tags_data
+
+    def read_tip_dress_tags(self):
+        # step-1 : read the json
+        tags_data = {}
+        try:
+            # Read set_names_tags.json
+            set_file_path = "plc_custom_user_tags\\set_names_tags.json"
+            with open(set_file_path, "r") as file:
+                set_data = json.load(file)
+
+            # Read actual_names_tags.json
+            actual_file_path = "plc_custom_user_tags\\actual_names_tags.json"
+            with open(actual_file_path, "r") as file:
+                actual_data = json.load(file)
+
+            # Ensure common robot names
+            common_robots = set(set_data.keys()) & set(actual_data.keys())
+
+            set_tags = []  # separate array for set tags
+            actual_tags = []  # separate array for actual tags
+            robots = []
+
+            if len(common_robots) > 0:
+                # step-2 : generate tag lists from the json data to read it
+                for robot in common_robots:
+                    set_tags.append(set_data[robot][0])
+                    actual_tags.append(actual_data[robot][0])
+                    robots.append(robot)
+
+                with LogixDriver(self.ip) as self.plc:
+                    if self.plc.connected:
+                        for index, robot in enumerate(robots):
+                            set_value = self.plc.read(set_tags[index]).value
+                            actual_value = self.plc.read(actual_tags[index]).value
+                            tags_data[robot] = [set_value, actual_value]
+                    else:
+                        pass
+        except Exception as e:
+            pass
+        
+        
         return tags_data
 
     def get_plc_status(self):
@@ -181,6 +282,8 @@ class data_writer:
     FAULT_DELAY_BACKUP_DIR = "FaultDelayBackup"
     CYCLETIME_BACKUP_DIR = "CycleTimeBackup"
     STATION_FAULT_DIR = "StationFaultBackup"
+    TIP_DRESS_COUNT_DIR = "TipDressCountBackup"
+    LAST_TIP_DRESS_DIR = "LastTipDressBackup"
 
     def __init__(self):
         pass
@@ -194,10 +297,13 @@ class data_writer:
                 df = pd.DataFrame([tags_data])
             else:
                 df = pd.DataFrame(tags_data)
-            df.index = range(1, len(df) + 1)
             # Transpose the DataFrame to have tags as rows and their values as columns
             df = df.transpose()
+            # For tip dress, keep the index as robot names
+            if directory != self.TIP_DRESS_BACKUP_DIR:
+                df.index = range(1, len(df) + 1)
             # get todays date in the format 'dd-mm-yyyy'
             today_str = datetime.datetime.now().strftime("%d-%m-%Y")
             with pd.ExcelWriter(f"./{directory}/{today_str}.xlsx") as writer:
                 df.to_excel(writer, sheet_name=today_str, index=True)
+                print("write")
