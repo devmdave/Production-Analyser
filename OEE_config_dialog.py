@@ -15,6 +15,23 @@ class ConfigDialog(QDialog):
         self.setWindowTitle("OEE Configuration")
         self.setFixedSize(500, 600)
         self.layout = QVBoxLayout(self)
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #c0392b;
+            }
+            QPushButton:pressed {
+                background-color: #a93226;
+            }
+        """)
 
         # Load existing config if available
         self.config = self.load_config()
