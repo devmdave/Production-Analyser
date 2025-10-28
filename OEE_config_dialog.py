@@ -7,128 +7,67 @@ from PyQt5.QtWidgets import (
     QGroupBox, QSpacerItem, QSizePolicy
 )
 from PyQt5.QtCore import QTime
-from PyQt5.QtGui import QPixmap, QFont
 
 class ConfigDialog(QDialog):
     def __init__(self, config_file="oee_config.json", parent=None):
         super().__init__(parent)
         self.config_file = config_file
         self.setWindowTitle("OEE Configuration")
-        self.setFixedSize(550, 750)
+        self.setFixedSize(400, 500)
         self.layout = QVBoxLayout(self)
-        self.setStyleSheet("""
-            QDialog {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #f0f0f0, stop:1 #e0e0e0);
-                border: 2px solid #007acc;
-                border-radius: 10px;
-            }
-            QGroupBox {
-                font-weight: bold;
-                font-size: 14px;
-                color: #007acc;
-                border: 2px solid #007acc;
-                border-radius: 5px;
-                margin-top: 1ex;
-                padding-top: 10px;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 5px 0 5px;
-            }
-            QLineEdit, QTimeEdit {
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                padding: 5px;
-                background-color: #ffffff;
-            }
-            QLineEdit:focus, QTimeEdit:focus {
-                border: 2px solid #007acc;
-            }
-            QPushButton {
-                background-color: #007acc;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #005a99;
-            }
-            QPushButton:pressed {
-                background-color: #004080;
-            }
-        """)
 
         # Load existing config if available
         self.config = self.load_config()
 
-        # Group shifts
-        shift_group = QGroupBox("Shift Configurations")
-        shift_layout = QFormLayout()
+        # Form layout for inputs
+        form_layout = QFormLayout()
 
         # Shift A
         self.shift_a_start = QTimeEdit()
         self.shift_a_start.setDisplayFormat("HH:mm")
         self.shift_a_start.setTime(QTime.fromString(self.config.get("shift_a_start", "08:00"), "HH:mm"))
-        shift_layout.addRow("Shift A Start Time:", self.shift_a_start)
+        form_layout.addRow("Shift A Start Time:", self.shift_a_start)
 
         self.shift_a_end = QTimeEdit()
         self.shift_a_end.setDisplayFormat("HH:mm")
         self.shift_a_end.setTime(QTime.fromString(self.config.get("shift_a_end", "16:00"), "HH:mm"))
-        shift_layout.addRow("Shift A End Time:", self.shift_a_end)
+        form_layout.addRow("Shift A End Time:", self.shift_a_end)
 
         # Shift B
         self.shift_b_start = QTimeEdit()
         self.shift_b_start.setDisplayFormat("HH:mm")
         self.shift_b_start.setTime(QTime.fromString(self.config.get("shift_b_start", "16:00"), "HH:mm"))
-        shift_layout.addRow("Shift B Start Time:", self.shift_b_start)
+        form_layout.addRow("Shift B Start Time:", self.shift_b_start)
 
         self.shift_b_end = QTimeEdit()
         self.shift_b_end.setDisplayFormat("HH:mm")
         self.shift_b_end.setTime(QTime.fromString(self.config.get("shift_b_end", "00:00"), "HH:mm"))
-        shift_layout.addRow("Shift B End Time:", self.shift_b_end)
+        form_layout.addRow("Shift B End Time:", self.shift_b_end)
 
         # Shift C
         self.shift_c_start = QTimeEdit()
         self.shift_c_start.setDisplayFormat("HH:mm")
         self.shift_c_start.setTime(QTime.fromString(self.config.get("shift_c_start", "00:00"), "HH:mm"))
-        shift_layout.addRow("Shift C Start Time:", self.shift_c_start)
+        form_layout.addRow("Shift C Start Time:", self.shift_c_start)
 
         self.shift_c_end = QTimeEdit()
         self.shift_c_end.setDisplayFormat("HH:mm")
         self.shift_c_end.setTime(QTime.fromString(self.config.get("shift_c_end", "08:00"), "HH:mm"))
-        shift_layout.addRow("Shift C End Time:", self.shift_c_end)
-
-        shift_group.setLayout(shift_layout)
-        self.layout.addWidget(shift_group)
-
-        # Spacer
-        self.layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
-
-        # Group production settings
-        prod_group = QGroupBox("Production Settings")
-        prod_layout = QFormLayout()
+        form_layout.addRow("Shift C End Time:", self.shift_c_end)
 
         # Ideal Cycle Time
         self.ideal_cycle_time = QLineEdit(self.config.get("ideal_cycle_time", "1.0"))
-        prod_layout.addRow("Ideal Cycle Time (minutes):", self.ideal_cycle_time)
+        form_layout.addRow("Ideal Cycle Time (minutes):", self.ideal_cycle_time)
 
         # Current Production Units Tag
         self.production_tag = QLineEdit(self.config.get("production_tag", ""))
-        prod_layout.addRow("Production Units Tag:", self.production_tag)
+        form_layout.addRow("Production Units Tag:", self.production_tag)
 
         # Current Total Fault Delay Tag
         self.fault_delay_tag = QLineEdit(self.config.get("fault_delay_tag", ""))
-        prod_layout.addRow("Total Fault Delay Tag:", self.fault_delay_tag)
+        form_layout.addRow("Total Fault Delay Tag:", self.fault_delay_tag)
 
-        prod_group.setLayout(prod_layout)
-        self.layout.addWidget(prod_group)
-
-        # Spacer
-        self.layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
+        self.layout.addLayout(form_layout)
 
         # Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
