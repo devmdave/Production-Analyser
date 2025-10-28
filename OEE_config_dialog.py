@@ -17,7 +17,7 @@ class ConfigDialog(QDialog):
         self.layout = QVBoxLayout(self)
         self.setStyleSheet("""
             QPushButton {
-                background-color: #e74c3c;
+                background-color: #002A4D;
                 color: white;
                 border: none;
                 padding: 10px 20px;
@@ -26,10 +26,10 @@ class ConfigDialog(QDialog):
                 font-size: 12px;
             }
             QPushButton:hover {
-                background-color: #c0392b;
+                background-color: #003A5D;
             }
             QPushButton:pressed {
-                background-color: #a93226;
+                background-color: #001A2D;
             }
         """)
 
