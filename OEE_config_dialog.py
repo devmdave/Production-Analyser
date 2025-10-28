@@ -109,6 +109,51 @@ class ConfigDialog(QDialog):
         prod_layout.addWidget(prod_group)
         self.tab_widget.addTab(prod_tab, "Production")
 
+        # Breaks Tab
+        breaks_tab = QWidget()
+        breaks_layout = QVBoxLayout(breaks_tab)
+
+        # Group breaks
+        breaks_group = QGroupBox("Break Configurations")
+        breaks_form_layout = QFormLayout()
+
+        # Break 1
+        self.break_1_start = QTimeEdit()
+        self.break_1_start.setDisplayFormat("HH:mm")
+        self.break_1_start.setTime(QTime.fromString(self.config.get("break_1_start", "10:00"), "HH:mm"))
+        breaks_form_layout.addRow("Break 1 Start Time:", self.break_1_start)
+
+        self.break_1_end = QTimeEdit()
+        self.break_1_end.setDisplayFormat("HH:mm")
+        self.break_1_end.setTime(QTime.fromString(self.config.get("break_1_end", "10:15"), "HH:mm"))
+        breaks_form_layout.addRow("Break 1 End Time:", self.break_1_end)
+
+        # Break 2
+        self.break_2_start = QTimeEdit()
+        self.break_2_start.setDisplayFormat("HH:mm")
+        self.break_2_start.setTime(QTime.fromString(self.config.get("break_2_start", "14:00"), "HH:mm"))
+        breaks_form_layout.addRow("Break 2 Start Time:", self.break_2_start)
+
+        self.break_2_end = QTimeEdit()
+        self.break_2_end.setDisplayFormat("HH:mm")
+        self.break_2_end.setTime(QTime.fromString(self.config.get("break_2_end", "14:15"), "HH:mm"))
+        breaks_form_layout.addRow("Break 2 End Time:", self.break_2_end)
+
+        # Break 3
+        self.break_3_start = QTimeEdit()
+        self.break_3_start.setDisplayFormat("HH:mm")
+        self.break_3_start.setTime(QTime.fromString(self.config.get("break_3_start", "16:00"), "HH:mm"))
+        breaks_form_layout.addRow("Break 3 Start Time:", self.break_3_start)
+
+        self.break_3_end = QTimeEdit()
+        self.break_3_end.setDisplayFormat("HH:mm")
+        self.break_3_end.setTime(QTime.fromString(self.config.get("break_3_end", "16:15"), "HH:mm"))
+        breaks_form_layout.addRow("Break 3 End Time:", self.break_3_end)
+
+        breaks_group.setLayout(breaks_form_layout)
+        breaks_layout.addWidget(breaks_group)
+        self.tab_widget.addTab(breaks_tab, "Breaks")
+
         # Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept_config)
@@ -134,7 +179,13 @@ class ConfigDialog(QDialog):
             "shift_c_end": self.shift_c_end.time().toString("HH:mm"),
             "ideal_cycle_time": self.ideal_cycle_time.text(),
             "production_tag": self.production_tag.text(),
-            "fault_delay_tag": self.fault_delay_tag.text()
+            "fault_delay_tag": self.fault_delay_tag.text(),
+            "break_1_start": self.break_1_start.time().toString("HH:mm"),
+            "break_1_end": self.break_1_end.time().toString("HH:mm"),
+            "break_2_start": self.break_2_start.time().toString("HH:mm"),
+            "break_2_end": self.break_2_end.time().toString("HH:mm"),
+            "break_3_start": self.break_3_start.time().toString("HH:mm"),
+            "break_3_end": self.break_3_end.time().toString("HH:mm")
         }
         with open(self.config_file, "w") as f:
             json.dump(config, f, indent=4)
