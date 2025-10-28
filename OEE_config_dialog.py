@@ -14,25 +14,53 @@ class ConfigDialog(QDialog):
         super().__init__(parent)
         self.config_file = config_file
         self.setWindowTitle("OEE Configuration")
-        self.setFixedSize(500, 700)
+        self.setFixedSize(550, 750)
         self.layout = QVBoxLayout(self)
-
-        # Add logo or header
-        header_layout = QHBoxLayout()
-        logo_label = QLabel()
-        pixmap = QPixmap("logo.PNG")  # Assuming logo.PNG exists
-        if not pixmap.isNull():
-            logo_label.setPixmap(pixmap.scaled(50, 50, aspectRatioMode=1))
-        header_layout.addWidget(logo_label)
-        title_label = QLabel("Automated Production Analyser")
-        title_font = QFont("Arial", 16, QFont.Bold)
-        title_label.setFont(title_font)
-        header_layout.addWidget(title_label)
-        header_layout.addStretch()
-        self.layout.addLayout(header_layout)
-
-        # Spacer
-        self.layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
+        self.setStyleSheet("""
+            QDialog {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #f0f0f0, stop:1 #e0e0e0);
+                border: 2px solid #007acc;
+                border-radius: 10px;
+            }
+            QGroupBox {
+                font-weight: bold;
+                font-size: 14px;
+                color: #007acc;
+                border: 2px solid #007acc;
+                border-radius: 5px;
+                margin-top: 1ex;
+                padding-top: 10px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
+            QLineEdit, QTimeEdit {
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                padding: 5px;
+                background-color: #ffffff;
+            }
+            QLineEdit:focus, QTimeEdit:focus {
+                border: 2px solid #007acc;
+            }
+            QPushButton {
+                background-color: #007acc;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #005a99;
+            }
+            QPushButton:pressed {
+                background-color: #004080;
+            }
+        """)
 
         # Load existing config if available
         self.config = self.load_config()
@@ -77,6 +105,9 @@ class ConfigDialog(QDialog):
         shift_group.setLayout(shift_layout)
         self.layout.addWidget(shift_group)
 
+        # Spacer
+        self.layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
+
         # Group production settings
         prod_group = QGroupBox("Production Settings")
         prod_layout = QFormLayout()
@@ -95,6 +126,9 @@ class ConfigDialog(QDialog):
 
         prod_group.setLayout(prod_layout)
         self.layout.addWidget(prod_group)
+
+        # Spacer
+        self.layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         # Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
