@@ -29,6 +29,8 @@ import time
 from Graph import GraphPlotter
 from summary_card import SummaryCard
 from PyQt5.QtCore import QThread, pyqtSignal
+from oee_calculator import OEECalculator
+from oee_dashboard_test import OEEDashboard
 
 qss = """
         QMenuBar {
@@ -118,7 +120,12 @@ class Dashboard(QMainWindow):
         self.edit_tip_dress_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_tip_change_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_dashboard_win = ParameterManagerWindow(json_path="plc_custom_user_tags\\dashboard_tags.json")
-        
+
+        # Initialize OEE Calculator
+        self.oee_calc = OEECalculator()
+        self.ideal_cycle_time = float(self.config.get("ideal_cycle_time", 1.0))
+
+
         self.label = QLabel()
 
         self.last_backup_time = datetime.now() - timedelta(hours=2, minutes=15)
@@ -405,8 +412,23 @@ class Dashboard(QMainWindow):
                 if name in self.param_labels:
                     self.param_labels[name].setText(str(plc_res[name]))
 
-            # Simulate OEE update
-            oee = random.uniform(50.0, 100.0)
+            # Compute OEE in real-time
+            try:
+                total_pieces, downtime = self.oee_calc.read_plc_tags()
+                self.current_total_pieces = total_pieces
+                self.current_downtime = downtime
+                now = datetime.now()
+                shift_start, shift_end = self.oee_calc.get_current_shift(now)
+                if shift_start and shift_end:
+                    oee_result = self.oee_calc.compute_realtime_oee(shift_start, shift_end, now, total_pieces, total_pieces, downtime, self.ideal_cycle_time)
+                    self.latest_oee = oee_result
+                    print(f"Realtime OEE: {oee_result}")
+                else:
+                    print("No active shift.")
+            except Exception as e:
+                print(f"Error in realtime calculation: {e}")
+
+            oee = self.latest_oee.get('oee', 0.0)
             self.oee_label.setText(f"{oee:.1f}")
 
             self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
