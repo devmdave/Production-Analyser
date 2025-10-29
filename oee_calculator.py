@@ -1,6 +1,9 @@
 import json
 import os
 from datetime import datetime, timedelta
+from pycomm3 import LogixDriver
+import threading
+import time
 
 class OEECalculator:
     """
@@ -141,3 +144,83 @@ class OEECalculator:
             'quality': quality * 100,
             'oee': oee * 100
         }
+
+    def get_current_shift(self, now=None):
+        """Determine the current shift based on the current time."""
+        if now is None:
+            now = datetime.now()
+        current_time = now.time()
+
+        shifts = [
+            ("shift_a_start", "shift_a_end"),
+            ("shift_b_start", "shift_b_end"),
+            ("shift_c_start", "shift_c_end")
+        ]
+
+        for start_key, end_key in shifts:
+            start_str = self.config.get(start_key)
+            end_str = self.config.get(end_key)
+            if start_str and end_str:
+                start_time = datetime.strptime(start_str, "%H:%M").time()
+                end_time = datetime.strptime(end_str, "%H:%M").time()
+
+                if start_time <= end_time:
+                    # Same day shift
+                    if start_time <= current_time <= end_time:
+                        return datetime.combine(now.date(), start_time), datetime.combine(now.date(), end_time)
+                else:
+                    # Overnight shift
+                    if current_time >= start_time or current_time <= end_time:
+                        if current_time >= start_time:
+                            start_dt = datetime.combine(now.date(), start_time)
+                        else:
+                            start_dt = datetime.combine(now.date() - timedelta(days=1), start_time)
+                        end_dt = datetime.combine(now.date(), end_time)
+                        return start_dt, end_dt
+        return None, None  # No active shift
+
+    def read_plc_tags(self):
+        """Read the production and downtime tags from PLC."""
+        plc_ip = self.config.get("plc_ip")
+        production_tag = self.config.get("production_tag")
+        downtime_tag = self.config.get("fault_delay_tag")
+
+        if not plc_ip or not production_tag or not downtime_tag:
+            raise ValueError("PLC IP, production tag, and downtime tag must be configured.")
+
+        total_pieces = 0
+        downtime = 0.0
+
+        try:
+            with LogixDriver(plc_ip) as plc:
+                if plc.connected:
+                    total_pieces = plc.read(production_tag).value
+                    downtime = float(plc.read(downtime_tag).value)
+                else:
+                    raise ConnectionError("Unable to connect to PLC.")
+        except Exception as e:
+            raise ConnectionError(f"Error reading PLC tags: {e}")
+
+        return total_pieces, downtime
+
+    def start_realtime_calculation(self):
+        """Start a thread to calculate realtime OEE every 2 seconds."""
+        ideal_cycle_time = float(self.config.get("ideal_cycle_time", 1.0))
+        def calculate_loop():
+            while True:
+                try:
+                    total_pieces, downtime = self.read_plc_tags()
+                    now = datetime.now()
+                    shift_start, shift_end = self.get_current_shift(now)
+                    if shift_start and shift_end:
+                        oee_result = self.compute_realtime_oee(shift_start, shift_end, now, total_pieces, total_pieces, downtime, ideal_cycle_time)
+                        print(f"Realtime OEE: {oee_result}")
+                    else:
+                        print("No active shift.")
+                except Exception as e:
+                    print(f"Error in realtime calculation: {e}")
+                time.sleep(2)
+
+        thread = threading.Thread(target=calculate_loop, daemon=True)
+        thread.start()
+        return thread

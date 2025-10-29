@@ -93,6 +93,10 @@ class ConfigDialog(QDialog):
         prod_group = QGroupBox("Production Settings")
         prod_form_layout = QFormLayout()
 
+        # PLC IP Address
+        self.plc_ip = QLineEdit(self.config.get("plc_ip", ""))
+        prod_form_layout.addRow("PLC IP Address:", self.plc_ip)
+
         # Ideal Cycle Time
         self.ideal_cycle_time = QLineEdit(self.config.get("ideal_cycle_time", "1.0"))
         prod_form_layout.addRow("Ideal Cycle Time (minutes):", self.ideal_cycle_time)
@@ -177,6 +181,7 @@ class ConfigDialog(QDialog):
             "shift_b_end": self.shift_b_end.time().toString("HH:mm"),
             "shift_c_start": self.shift_c_start.time().toString("HH:mm"),
             "shift_c_end": self.shift_c_end.time().toString("HH:mm"),
+            "plc_ip": self.plc_ip.text(),
             "ideal_cycle_time": self.ideal_cycle_time.text(),
             "production_tag": self.production_tag.text(),
             "fault_delay_tag": self.fault_delay_tag.text(),
@@ -204,6 +209,10 @@ class ConfigDialog(QDialog):
 
         if not self.fault_delay_tag.text().strip():
             QMessageBox.warning(self, "Invalid Input", "Total Fault Delay Tag is required.")
+            return
+
+        if not self.plc_ip.text().strip():
+            QMessageBox.warning(self, "Invalid Input", "PLC IP Address is required.")
             return
 
         self.save_config()
