@@ -123,7 +123,7 @@ class Dashboard(QMainWindow):
 
         # Initialize OEE Calculator
         self.oee_calc = OEECalculator()
-        self.ideal_cycle_time = float(self.config.get("ideal_cycle_time", 1.0))
+        self.ideal_cycle_time = float(self.oee_calc.config.get("ideal_cycle_time", 1.0))
 
 
         self.label = QLabel()
