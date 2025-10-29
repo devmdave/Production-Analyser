@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from pycomm3 import LogixDriver
 import threading
 import time
+import random
 
 class OEECalculator:
     """
@@ -20,6 +21,9 @@ class OEECalculator:
     def __init__(self, config_file="oee_config.json"):
         self.config_file = config_file
         self.config = self.load_config()
+        self.latest_oee = {'availability': 0, 'performance': 0, 'quality': 0, 'oee': 0}
+        self.current_total_pieces = 0
+        self.current_downtime = 0.0
 
     def load_config(self):
         if os.path.exists(self.config_file):
@@ -188,18 +192,20 @@ class OEECalculator:
         if not plc_ip or not production_tag or not downtime_tag:
             raise ValueError("PLC IP, production tag, and downtime tag must be configured.")
 
-        total_pieces = 0
-        downtime = 0.0
+        # For testing, use random values instead of PLC read
+        total_pieces = random.randint(100, 127)
+        downtime = random.uniform(0, 60)  # Random downtime in minutes
 
-        try:
-            with LogixDriver(plc_ip) as plc:
-                if plc.connected:
-                    total_pieces = plc.read(production_tag).value
-                    downtime = float(plc.read(downtime_tag).value)
-                else:
-                    raise ConnectionError("Unable to connect to PLC.")
-        except Exception as e:
-            raise ConnectionError(f"Error reading PLC tags: {e}")
+        # Commented out actual PLC reading
+        # try:
+        #     with LogixDriver(plc_ip) as plc:
+        #         if plc.connected:
+        #             total_pieces = plc.read(production_tag).value
+        #             downtime = float(plc.read(downtime_tag).value)
+        #         else:
+        #             raise ConnectionError("Unable to connect to PLC.")
+        # except Exception as e:
+        #     raise ConnectionError(f"Error reading PLC tags: {e}")
 
         return total_pieces, downtime
 
@@ -210,10 +216,13 @@ class OEECalculator:
             while True:
                 try:
                     total_pieces, downtime = self.read_plc_tags()
+                    self.current_total_pieces = total_pieces
+                    self.current_downtime = downtime
                     now = datetime.now()
                     shift_start, shift_end = self.get_current_shift(now)
                     if shift_start and shift_end:
                         oee_result = self.compute_realtime_oee(shift_start, shift_end, now, total_pieces, total_pieces, downtime, ideal_cycle_time)
+                        self.latest_oee = oee_result
                         print(f"Realtime OEE: {oee_result}")
                     else:
                         print("No active shift.")
@@ -224,3 +233,11 @@ class OEECalculator:
         thread = threading.Thread(target=calculate_loop, daemon=True)
         thread.start()
         return thread
+
+    def get_latest_oee(self):
+        """Get the latest calculated OEE data."""
+        return self.latest_oee
+
+    def get_current_production_data(self):
+        """Get current production data."""
+        return self.current_total_pieces, self.current_downtime

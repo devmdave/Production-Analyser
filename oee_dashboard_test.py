@@ -21,7 +21,10 @@ class OEEDashboard(QMainWindow):
         # Initialize calculator
         self.calc = OEECalculator()
 
-        # Simulated production data
+        # Start realtime calculation thread
+        self.calc.start_realtime_calculation()
+
+        # Simulated production data (for manual simulation)
         self.total_count = 0
         self.good_count = 0
         self.downtime = 0.0
@@ -36,7 +39,7 @@ class OEEDashboard(QMainWindow):
         # Timer for realtime updates
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_oee)
-        self.timer.start(5000)  # Update every 5 seconds
+        self.timer.start(2000)  # Update every 2 seconds to match calculation thread
 
     def init_ui(self):
         central_widget = QWidget()
@@ -116,23 +119,23 @@ class OEEDashboard(QMainWindow):
     def update_oee(self):
         current_time = datetime.now()
 
-        # Update production labels
-        self.lbl_total_count.setText(str(self.total_count))
-        self.lbl_good_count.setText(str(self.good_count))
-        self.lbl_downtime.setText(f"{self.downtime:.1f} min")
+        # Get latest OEE data from realtime calculation
+        oee_data = self.calc.get_latest_oee()
+
+        # Get current production data from realtime calculation
+        total_pieces, current_downtime = self.calc.get_current_production_data()
+
+        # Update production labels with realtime data
+        self.lbl_total_count.setText(str(total_pieces))
+        self.lbl_good_count.setText(str(total_pieces))  # Assuming all are good for now
+        self.lbl_downtime.setText(f"{current_downtime:.1f} min")
 
         # Calculate elapsed time
         breaks = self.calc.get_breaks()
         elapsed = self.calc.calculate_elapsed_minutes(self.shift_start, self.shift_end, current_time, breaks)
         self.lbl_elapsed_time.setText(f"{elapsed} min")
 
-        # Calculate OEE
-        oee_data = self.calc.compute_realtime_oee(
-            self.shift_start, self.shift_end, current_time,
-            self.total_count, self.good_count, self.downtime
-        )
-
-        # Update OEE labels
+        # Update OEE labels with realtime data
         self.lbl_availability.setText(f"{oee_data['availability']:.2f}%")
         self.lbl_performance.setText(f"{oee_data['performance']:.2f}%")
         self.lbl_quality.setText(f"{oee_data['quality']:.2f}%")
