@@ -7,12 +7,14 @@ from PyQt5.QtWidgets import (
     QPushButton, QMessageBox, QDialog, QLabel,
     QLineEdit, QDialogButtonBox
 )
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
 class CustomTagDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Add New Tag")
+        self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(300, 140)
 
         self.station_label = QLabel("Station Name:")
@@ -46,6 +48,7 @@ class TagManagerWindow(QMainWindow):
         super().__init__()
         self.json_path = json_path
         self.setWindowTitle("Tag Manager")
+        self.setWindowIcon(QIcon("icon.png"))
         self.resize(500, 400)
 
         self._load_data()

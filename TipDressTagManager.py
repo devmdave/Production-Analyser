@@ -7,12 +7,14 @@ from PyQt5.QtWidgets import (
     QPushButton, QMessageBox, QDialog, QLabel,
     QLineEdit, QDialogButtonBox, QComboBox
 )
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
 class TipDressTagDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Add New Tip Dress Tag")
+        self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(350, 180)
 
         self.robot_label = QLabel("Robot Name:")
@@ -53,6 +55,7 @@ class TipDressTagManagerWindow(QMainWindow):
         self.set_names_path = "plc_custom_user_tags/set_names_tags.json"
         self.actual_names_path = "plc_custom_user_tags/actual_names_tags.json"
         self.setWindowTitle("Tip Dress Tag Manager")
+        self.setWindowIcon(QIcon("icon.png"))
         self.resize(600, 400)
 
         self._load_data()
