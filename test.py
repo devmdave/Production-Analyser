@@ -492,6 +492,7 @@ class Dashboard(QMainWindow):
         self.edit_dashboard_tag_action = QAction("Dashboard Tag",self)
         self.set_backup_time = QAction("Set New Backup Time", self)
         self.get_backup_time = QAction("Show Saved Backup Time", self)
+        self.oee_config_action = QAction("OEE Configuration", self)
 
 
 
@@ -513,6 +514,7 @@ class Dashboard(QMainWindow):
         
         setting_menu.addAction(self.get_backup_time)
         setting_menu.addAction(self.set_backup_time)
+        setting_menu.addAction(self.oee_config_action)
 
         self.view_current_cycle_action.triggered.connect(lambda: (self.cycletime_current_layout(), self.start_task()))
         self.view_cycle_action.triggered.connect(lambda: self.cycletime_backup_layout())
@@ -526,6 +528,7 @@ class Dashboard(QMainWindow):
         self.edit_tipchange_tag_action.triggered.connect(lambda: self.edit_tip_change_tags())
         self.edit_tipdress_tag_action.triggered.connect(lambda:self.edit_tip_dress_tags())
         self.edit_dashboard_tag_action.triggered.connect(lambda:self.edit_dashboard_tags())
+        self.oee_config_action.triggered.connect(lambda: self.show_oee_config())
 
     def _get_stylesheet(self):
         if self.dark_mode:
@@ -1077,6 +1080,10 @@ class Dashboard(QMainWindow):
     def show_more_info(self):
         self.oee_dashboard = OEEDashboard()
         self.oee_dashboard.show()
+
+    def show_oee_config(self):
+        self.config_dialog = ConfigDialog()
+        self.config_dialog.show()
 
 
 def main():
