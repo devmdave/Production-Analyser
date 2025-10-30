@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     QLineEdit, QTimeEdit, QDialogButtonBox, QFormLayout, QMessageBox,
     QGroupBox, QSpacerItem, QSizePolicy, QTabWidget, QWidget, QDesktopWidget
 )
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTime
 
 class ConfigDialog(QDialog):
@@ -13,6 +14,7 @@ class ConfigDialog(QDialog):
         super().__init__(parent)
         self.config_file = config_file
         self.setWindowTitle("OEE Configuration")
+        self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(600, 500)
         self.center()
         self.layout = QVBoxLayout(self)

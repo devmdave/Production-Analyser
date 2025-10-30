@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (
     QLabel, QPushButton, QGroupBox, QFormLayout, QLineEdit, QDesktopWidget
 )
 from PyQt5.QtCore import QTime, QTimer, Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 
 from oee_calculator import OEECalculator
 from OEE_config_dialog import ConfigDialog
@@ -16,6 +16,7 @@ class OEEDashboard(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Detailed OEE Information - Production Analyser")
+        self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(400, 400)
         self.center()
         self.setStyleSheet("""
