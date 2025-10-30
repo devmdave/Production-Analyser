@@ -16,9 +16,8 @@ from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QBrush, QPixmap, Q
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
     QTextEdit, QFrame, QPushButton, QSizePolicy, QMenu, QAction, QWidget,
-    QTableView, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem, QDialog
+    QTableView, QLineEdit, QListView, QProgressDialog, QTimeEdit, QMessageBox, QSpacerItem, QDialog, QDesktopWidget
 )
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget
 from dashboard_parameter_manager import ParameterManagerWindow
 from TagManager import TagManagerWindow
 from Dialog import *
@@ -85,6 +84,54 @@ class CustomTimeEdit(QTimeEdit):
             return
         super().keyPressEvent(event)
 
+class BackupTimeDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.setWindowTitle("Saved Backup Time")
+        self.setWindowIcon(QIcon("icon.png"))
+        self.setModal(True)
+
+        layout = QVBoxLayout(self)
+
+        backup_time = os.getenv("LAST_BACKUP_TIME")
+        if backup_time:
+            time_text = f"Last Backup Time: {backup_time}"
+        else:
+            time_text = "Last Backup Time: Not set"
+
+        label = QLabel(time_text)
+        label.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label)
+
+        # Apply theme stylesheet
+        self.setStyleSheet(self._get_stylesheet())
+
+    def _get_stylesheet(self):
+        if self.parent and hasattr(self.parent, 'dark_mode') and self.parent.dark_mode:
+            return """
+                QWidget {
+                    background-color: #34495e;
+                    color: #ecf0f1;
+                    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                }
+                QLabel {
+                    color: #ecf0f1;
+                }
+            """
+        else:
+            return """
+                QWidget {
+                    background-color: #FFFFFF;
+                    color: #002A4D;
+                    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                }
+                QLabel {
+                    color: #002A4D;
+                }
+            """
+
 class Dashboard(QMainWindow):
     def __init__(self,which_plc):
         super().__init__()
@@ -113,7 +160,7 @@ class Dashboard(QMainWindow):
         self.file_path = "production.xlsx"
        
         self.Dialog = Dialog()
-        self.dlg = BackupTimeDialog()
+        self.dlg = BackupTimeDialog(self)
         self.edit_cyctime_win = TagManagerWindow(json_path="plc_custom_user_tags\\cycle_time_tags.json")
         self.edit_fault_delay_win = TagManagerWindow(json_path="plc_custom_user_tags\\fault_delay_tags.json")
         self.edit_station_fault_win = TagManagerWindow(json_path="plc_custom_user_tags\\station_fault_tags.json")
