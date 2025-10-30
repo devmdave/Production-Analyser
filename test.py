@@ -29,6 +29,8 @@ import time
 from Graph import GraphPlotter
 from summary_card import SummaryCard
 from PyQt5.QtCore import QThread, pyqtSignal
+from oee_calculator import OEECalculator
+from oee_dashboard_test import OEEDashboard
 
 qss = """
         QMenuBar {
@@ -118,7 +120,12 @@ class Dashboard(QMainWindow):
         self.edit_tip_dress_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_tip_change_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
         self.edit_dashboard_win = ParameterManagerWindow(json_path="plc_custom_user_tags\\dashboard_tags.json")
-        
+
+        # Initialize OEE Calculator
+        self.oee_calc = OEECalculator()
+        self.ideal_cycle_time = float(self.oee_calc.config.get("ideal_cycle_time", 1.0))
+
+
         self.label = QLabel()
 
         self.last_backup_time = datetime.now() - timedelta(hours=2, minutes=15)
@@ -139,7 +146,7 @@ class Dashboard(QMainWindow):
 
         self._init_ui()
         self._init_timers()
-        self.param_thread = threading.Thread(target=self._update_parameters, daemon=True)
+        self.param_thread = threading.Thread(target=self._update_parameters)
         self.param_thread.start()
         self._log("Dashboard initialized.")
 
@@ -148,6 +155,7 @@ class Dashboard(QMainWindow):
     
     def mock_plc_init(self):
         self.plc =  pycomm3()
+
 
     def _init_ui(self):
         try:
@@ -351,17 +359,7 @@ class Dashboard(QMainWindow):
         self.timer.start(1000)
         self._update_time()
 
-        # Update backup time every minute (simulate)
-        self.backup_timer = QTimer()
-        self.backup_timer.timeout.connect(self._update_backup_time)
-        self.backup_timer.start(60000)
-        self._update_backup_time()
-
-        # Update PLC connection status every 5 seconds (simulate)
-        # self.plc_timer = QTimer()
-        # self.plc_timer.timeout.connect(self._update_plc_status)
-        # self.plc_timer.start(5000)
-        self._update_plc_status()
+        # self._update_plc_status()
 
     def _update_time(self):
         now = QTime.currentTime()
@@ -405,12 +403,28 @@ class Dashboard(QMainWindow):
                 if name in self.param_labels:
                     self.param_labels[name].setText(str(plc_res[name]))
 
-            # Simulate OEE update
-            oee = random.uniform(50.0, 100.0)
+            # Compute OEE in real-time
+            try:
+                total_pieces, downtime = self.oee_calc.read_plc_tags()
+                self.current_total_pieces = total_pieces
+                self.current_downtime = downtime
+                now = datetime.now()
+                shift_start, shift_end = self.oee_calc.get_current_shift(now)
+                if shift_start and shift_end:
+                    oee_result = self.oee_calc.compute_realtime_oee(shift_start, shift_end, now, total_pieces, total_pieces, downtime, self.ideal_cycle_time)
+                    self.latest_oee = oee_result
+                    print(f"Realtime OEE result: {oee_result}")
+                else:
+                    print("No active shift.")
+            except Exception as e:
+                print(f"Error in realtime calculation: {e}")
+
+            oee = self.latest_oee.get('oee', 0.0)
             self.oee_label.setText(f"{oee:.1f}")
 
             self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
-            time.sleep(60)
+            print("updating OEE every sec")
+            time.sleep(90)
 
     def create_default_config_if_missing(self,json_path):
         if not os.path.exists(json_path):

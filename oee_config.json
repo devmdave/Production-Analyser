@@ -1,0 +1,18 @@
+{
+    "shift_a_start": "08:00",
+    "shift_a_end": "15:00",
+    "shift_b_start": "15:00",
+    "shift_b_end": "00:00",
+    "shift_c_start": "00:00",
+    "shift_c_end": "08:00",
+    "plc_ip": "192.168.1.100",
+    "ideal_cycle_time": "20",
+    "production_tag": "test",
+    "fault_delay_tag": "test",
+    "break_1_start": "10:00",
+    "break_1_end": "10:15",
+    "break_2_start": "14:00",
+    "break_2_end": "14:15",
+    "break_3_start": "16:00",
+    "break_3_end": "16:15"
+}
