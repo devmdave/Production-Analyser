@@ -4,7 +4,7 @@ import os
 from PyQt5.QtWidgets import (
     QApplication, QDialog, QVBoxLayout, QHBoxLayout, QLabel,
     QLineEdit, QTimeEdit, QDialogButtonBox, QFormLayout, QMessageBox,
-    QGroupBox, QSpacerItem, QSizePolicy, QTabWidget, QWidget
+    QGroupBox, QSpacerItem, QSizePolicy, QTabWidget, QWidget, QDesktopWidget
 )
 from PyQt5.QtCore import QTime
 
@@ -13,7 +13,8 @@ class ConfigDialog(QDialog):
         super().__init__(parent)
         self.config_file = config_file
         self.setWindowTitle("OEE Configuration")
-        self.setFixedSize(600, 700)
+        self.setFixedSize(600, 500)
+        self.center()
         self.layout = QVBoxLayout(self)
         self.layout.setSpacing(15)
         self.layout.setContentsMargins(20, 20, 20, 20)
@@ -260,6 +261,12 @@ class ConfigDialog(QDialog):
 
         self.save_config()
         self.accept()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

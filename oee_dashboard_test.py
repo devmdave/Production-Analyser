@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QGroupBox, QFormLayout, QLineEdit
+    QLabel, QPushButton, QGroupBox, QFormLayout, QLineEdit, QDesktopWidget
 )
 from PyQt5.QtCore import QTime, QTimer, Qt
 from PyQt5.QtGui import QFont
@@ -16,7 +16,8 @@ class OEEDashboard(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Detailed OEE Information - Production Analyser")
-        self.setGeometry(100, 100, 700, 500)
+        self.setFixedSize(400, 400)
+        self.center()
         self.setStyleSheet("""
             QWidget {
                 background-color: #FFFFFF;
@@ -75,14 +76,6 @@ class OEEDashboard(QMainWindow):
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
 
-        # Config button
-        config_layout = QHBoxLayout()
-        config_btn = QPushButton("Open OEE Configuration")
-        config_btn.clicked.connect(self.open_config)
-        config_layout.addWidget(config_btn)
-        config_layout.addStretch()
-        layout.addLayout(config_layout)
-
         # OEE Metrics Group
         oee_group = QGroupBox("Current OEE Metrics")
         oee_layout = QFormLayout()
@@ -121,6 +114,14 @@ class OEEDashboard(QMainWindow):
         prod_group.setLayout(prod_layout)
         layout.addWidget(prod_group)
 
+        # Config button at the bottom
+        config_layout = QHBoxLayout()
+        config_btn = QPushButton("Open OEE Configuration")
+        config_btn.clicked.connect(self.open_config)
+        config_layout.addWidget(config_btn)
+        config_layout.addStretch()
+        layout.addLayout(config_layout)
+
     def open_config(self):
         dialog = ConfigDialog()
         dialog.exec_()
@@ -151,6 +152,12 @@ class OEEDashboard(QMainWindow):
         self.lbl_performance.setText(f"{oee_data['performance']:.2f}%")
         self.lbl_quality.setText(f"{oee_data['quality']:.2f}%")
         self.lbl_oee.setText(f"{oee_data['oee']:.2f}%")
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
