@@ -256,7 +256,7 @@ class Dashboard(QMainWindow):
 
         # Last Backup Time
         self.backup_label = QLabel()
-        self.backup_label.setFont(QFont("Segoe UI", 15))
+        self.backup_label.setFont(QFont("Segoe UI", 15, QFont.Bold))
         self.backup_label.setAlignment(Qt.AlignCenter)
         self.backup_label.setFixedWidth(220)
         backup_box = self._create_info_box("Last Backup", self.backup_label)
