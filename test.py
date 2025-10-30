@@ -473,13 +473,15 @@ class Dashboard(QMainWindow):
                 else:
                     print("No active shift.")
             except Exception as e:
-                print(f"Error in realtime calculation: {e}")
+                print(f"Error: {e}")
 
-            oee = self.latest_oee.get('oee', 0.0)
-            self.oee_label.setText(f"{oee:.1f}")
+            try:
+                oee = self.latest_oee.get('oee', 0.0)
+                self.oee_label.setText(f"{oee:.1f}")
+                self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
+            except Exception as e:
+                pass
 
-            self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
-            print("updating OEE every sec")
             time.sleep(1)
 
     def create_default_config_if_missing(self,json_path):
