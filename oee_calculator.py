@@ -95,18 +95,25 @@ class OEECalculator:
 
         breaks = self.get_breaks()
         elapsed_minutes = self.calculate_elapsed_minutes(shift_start, shift_end, current_time, breaks)
-
+        print(f"Elapsed minutes (excluding breaks): {elapsed_minutes}")
+        print(f"Total count: {total_count}, Good count: {good_count}, Downtime: {downtime} min, Ideal cycle time: {ideal_cycle_time} sec")
         if elapsed_minutes <= 0:
+            print("Elapsed minutes is zero or negative, cannot compute OEE.")
             return {'availability': 0, 'performance': 0, 'quality': 0, 'oee': 0}
 
         operating_time = elapsed_minutes - downtime
         if operating_time < 0:
             operating_time = 0
+        print(f"Operating time: {operating_time} min")
 
         availability = operating_time / elapsed_minutes if elapsed_minutes else 0
-        performance = (ideal_cycle_time * total_count) / operating_time if operating_time else 0
+        # Assuming ideal_cycle_time is in seconds, convert to minutes for calculation
+        ideal_cycle_time_minutes = ideal_cycle_time / 60
+        performance = (ideal_cycle_time_minutes * total_count) / operating_time if operating_time else 0
         quality = good_count / total_count if total_count else 0
         oee = availability * performance * quality
+
+        print(f"Availability: {availability:.4f}, Performance: {performance:.4f}, Quality: {quality:.4f}, OEE: {oee:.4f}")
 
         return {
             'availability': availability * 100,
@@ -143,9 +150,10 @@ class OEECalculator:
                     if current_time >= start_time or current_time <= end_time:
                         if current_time >= start_time:
                             start_dt = datetime.combine(now.date(), start_time)
+                            end_dt = datetime.combine(now.date() + timedelta(days=1), end_time)
                         else:
                             start_dt = datetime.combine(now.date() - timedelta(days=1), start_time)
-                        end_dt = datetime.combine(now.date(), end_time)
+                            end_dt = datetime.combine(now.date(), end_time)
                         return start_dt, end_dt
         return None, None  # No active shift
 
@@ -158,20 +166,20 @@ class OEECalculator:
         if not plc_ip or not production_tag or not downtime_tag:
             raise ValueError("PLC IP, production tag, and downtime tag must be configured.")
 
-        # For testing, use random values instead of PLC read
-        total_pieces = random.randint(100, 127)
-        downtime = random.uniform(0, 60)  # Random downtime in minutes
+        # # For testing, use random values instead of PLC read
+        # total_pieces = random.randint(300, 396)
+        # downtime = random.uniform(5, 10)  # Random downtime in minutes
 
         # Commented out actual PLC reading
-        # try:
-        #     with LogixDriver(plc_ip) as plc:
-        #         if plc.connected:
-        #             total_pieces = plc.read(production_tag).value
-        #             downtime = float(plc.read(downtime_tag).value)
-        #         else:
-        #             raise ConnectionError("Unable to connect to PLC.")
-        # except Exception as e:
-        #     raise ConnectionError(f"Error reading PLC tags: {e}")
+        try:
+            with LogixDriver(plc_ip) as plc:
+                if plc.connected:
+                    total_pieces = plc.read(production_tag).value
+                    downtime = float(plc.read(downtime_tag).value)
+                else:
+                    raise ConnectionError("Unable to connect to PLC.")
+        except Exception as e:
+            raise ConnectionError(f"Error reading PLC tags: {e}")
 
         return total_pieces, downtime
 

@@ -146,7 +146,7 @@ class Dashboard(QMainWindow):
 
         self._init_ui()
         self._init_timers()
-        self.param_thread = threading.Thread(target=self._update_parameters, daemon=True)
+        self.param_thread = threading.Thread(target=self._update_parameters)
         self.param_thread.start()
         self._log("Dashboard initialized.")
 
@@ -155,6 +155,7 @@ class Dashboard(QMainWindow):
     
     def mock_plc_init(self):
         self.plc =  pycomm3()
+
 
     def _init_ui(self):
         try:
@@ -358,17 +359,7 @@ class Dashboard(QMainWindow):
         self.timer.start(1000)
         self._update_time()
 
-        # Update backup time every minute (simulate)
-        self.backup_timer = QTimer()
-        self.backup_timer.timeout.connect(self._update_backup_time)
-        self.backup_timer.start(60000)
-        self._update_backup_time()
-
-        # Update PLC connection status every 5 seconds (simulate)
-        # self.plc_timer = QTimer()
-        # self.plc_timer.timeout.connect(self._update_plc_status)
-        # self.plc_timer.start(5000)
-        self._update_plc_status()
+        # self._update_plc_status()
 
     def _update_time(self):
         now = QTime.currentTime()
@@ -422,7 +413,7 @@ class Dashboard(QMainWindow):
                 if shift_start and shift_end:
                     oee_result = self.oee_calc.compute_realtime_oee(shift_start, shift_end, now, total_pieces, total_pieces, downtime, self.ideal_cycle_time)
                     self.latest_oee = oee_result
-                    print(f"Realtime OEE: {oee_result}")
+                    print(f"Realtime OEE result: {oee_result}")
                 else:
                     print("No active shift.")
             except Exception as e:
@@ -432,7 +423,8 @@ class Dashboard(QMainWindow):
             self.oee_label.setText(f"{oee:.1f}")
 
             self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
-            time.sleep(60)
+            print("updating OEE every sec")
+            time.sleep(90)
 
     def create_default_config_if_missing(self,json_path):
         if not os.path.exists(json_path):

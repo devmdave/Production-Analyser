@@ -1,7 +1,7 @@
 {
     "shift_a_start": "08:00",
-    "shift_a_end": "16:00",
-    "shift_b_start": "16:00",
+    "shift_a_end": "15:00",
+    "shift_b_start": "15:00",
     "shift_b_end": "00:00",
     "shift_c_start": "00:00",
     "shift_c_end": "08:00",
