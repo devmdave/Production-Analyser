@@ -128,7 +128,7 @@ class Dashboard(QMainWindow):
 
         self.label = QLabel()
 
-        self.last_backup_time = datetime.now() - timedelta(hours=2, minutes=15)
+        self.last_backup_time = os.getenv("LAST_BACKUP_TIME")
         self.plc_connected = False
 
         # Store original window size for scaling
@@ -381,10 +381,7 @@ class Dashboard(QMainWindow):
 
     def _update_backup_time(self):
         try:
-            elapsed = datetime.now() - self.last_backup_time
-            hours, remainder = divmod(elapsed.seconds, 3600)
-            minutes, _ = divmod(remainder, 60)
-            self.backup_label.setText(f"{hours}h {minutes}m ago")
+            self.backup_label.setText(f"{self.last_backup_time}")
         except Exception as e:
             pass
 
@@ -404,6 +401,7 @@ class Dashboard(QMainWindow):
 
     def _update_parameters(self):
         while True:
+            self._update_backup_time()
             plc_res = self.plc.read_dashboard_tags()
             # Update parameter values from JSON or simulate if no value provided
             with open('plc_custom_user_tags\\dashboard_tags.json', 'r') as f:
