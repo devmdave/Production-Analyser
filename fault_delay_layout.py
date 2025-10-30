@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QHBoxLayout, QWidget, QLabel, QHeaderView, QPushButton, QMessageBox
 )
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor, QIcon
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from Dialog import Dialog
 import my_plc
@@ -124,6 +124,7 @@ class CurrentFaultDelay(QMainWindow):
         super().__init__()
         self.dark_mode = True
         self.setWindowTitle("Production Analyser")
+        self.setWindowIcon(QIcon("icon.png"))
         self.setGeometry(100, 100, 900, 400)  # Decreased window size
 
         # --- File name label at the top ---
@@ -239,6 +240,8 @@ class CurrentFaultDelay(QMainWindow):
         # Show QMessageBox based on result
         if not success:
             self.dg.show_fault_delay_data_not_found_error()
+
+
         
     def _get_stylesheet(self):
         if self.dark_mode:
