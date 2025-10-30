@@ -96,9 +96,9 @@ class BackupTimeDialog(QDialog):
 
         backup_time = os.getenv("LAST_BACKUP_TIME")
         if backup_time:
-            time_text = f"Last Backup Time: {backup_time}"
+            time_text = f"Saved Backup Time: {backup_time}"
         else:
-            time_text = "Last Backup Time: Not set"
+            time_text = "Saved Backup Time: Not set"
 
         label = QLabel(time_text)
         label.setFont(QFont("Segoe UI", 14, QFont.Bold))
