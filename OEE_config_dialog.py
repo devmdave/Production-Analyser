@@ -13,9 +13,19 @@ class ConfigDialog(QDialog):
         super().__init__(parent)
         self.config_file = config_file
         self.setWindowTitle("OEE Configuration")
-        self.setFixedSize(500, 600)
+        self.setFixedSize(600, 700)
         self.layout = QVBoxLayout(self)
+        self.layout.setSpacing(15)
+        self.layout.setContentsMargins(20, 20, 20, 20)
         self.setStyleSheet("""
+            QWidget {
+                background-color: #FFFFFF;
+                color: #002A4D;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+            QLabel {
+                color: #002A4D;
+            }
             QPushButton {
                 background-color: #002A4D;
                 color: white;
@@ -30,6 +40,39 @@ class ConfigDialog(QDialog):
             }
             QPushButton:pressed {
                 background-color: #001A2D;
+            }
+            QLineEdit {
+                border: 1px solid #002A4D;
+                border-radius: 4px;
+                padding: 5px;
+            }
+            QTimeEdit {
+                border: 1px solid #002A4D;
+                border-radius: 4px;
+                padding: 5px;
+            }
+            QGroupBox {
+                font-weight: bold;
+                border: 2px solid #002A4D;
+                border-radius: 5px;
+                margin-top: 1ex;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #002A4D;
+            }
+            QTabBar::tab {
+                background: #C6E5F5;
+                border: 1px solid #002A4D;
+                padding: 8px;
+                color: #002A4D;
+            }
+            QTabBar::tab:selected {
+                background: #AAD8F0;
             }
         """)
 

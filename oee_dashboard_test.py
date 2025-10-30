@@ -15,19 +15,46 @@ from OEE_config_dialog import ConfigDialog
 class OEEDashboard(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("OEE Dashboard - Testing")
-        self.setGeometry(100, 100, 600, 400)
+        self.setWindowTitle("Detailed OEE Information - Production Analyser")
+        self.setGeometry(100, 100, 700, 500)
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #FFFFFF;
+                color: #002A4D;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+            QLabel {
+                color: #002A4D;
+            }
+            QPushButton {
+                background-color: #002A4D;
+                border: none;
+                color: white;
+                padding: 7px 14px;
+                border-radius: 8px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #003A5D;
+            }
+            QGroupBox {
+                font-weight: bold;
+                border: 2px solid #002A4D;
+                border-radius: 5px;
+                margin-top: 1ex;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
+        """)
 
         # Initialize calculator
         self.calc = OEECalculator()
 
         # Start realtime calculation thread
         self.calc.start_realtime_calculation()
-
-        # Simulated production data (for manual simulation)
-        self.total_count = 0
-        self.good_count = 0
-        self.downtime = 0.0
 
         # Current shift (simulate shift A for testing)
         now = datetime.now()
@@ -45,12 +72,8 @@ class OEEDashboard(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-
-        # Title
-        title = QLabel("OEE Realtime Dashboard")
-        title.setFont(QFont("Arial", 16, QFont.Bold))
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
 
         # Config button
         config_layout = QHBoxLayout()
@@ -63,6 +86,8 @@ class OEEDashboard(QMainWindow):
         # OEE Metrics Group
         oee_group = QGroupBox("Current OEE Metrics")
         oee_layout = QFormLayout()
+        oee_layout.setSpacing(10)
+        oee_layout.setContentsMargins(15, 15, 15, 15)
 
         self.lbl_availability = QLabel("0.00%")
         self.lbl_performance = QLabel("0.00%")
@@ -78,8 +103,10 @@ class OEEDashboard(QMainWindow):
         layout.addWidget(oee_group)
 
         # Production Data Group
-        prod_group = QGroupBox("Production Data (Simulated)")
+        prod_group = QGroupBox("Production Data")
         prod_layout = QFormLayout()
+        prod_layout.setSpacing(10)
+        prod_layout.setContentsMargins(15, 15, 15, 15)
 
         self.lbl_total_count = QLabel("0")
         self.lbl_good_count = QLabel("0")
@@ -94,27 +121,11 @@ class OEEDashboard(QMainWindow):
         prod_group.setLayout(prod_layout)
         layout.addWidget(prod_group)
 
-        # Simulate production button
-        simulate_btn = QPushButton("Simulate Production Update")
-        simulate_btn.clicked.connect(self.simulate_production)
-        layout.addWidget(simulate_btn)
-
     def open_config(self):
         dialog = ConfigDialog()
         dialog.exec_()
         # Reload config after dialog closes
         self.calc = OEECalculator()
-
-    def simulate_production(self):
-        # Simulate adding production data
-        import random
-        add_total = random.randint(120, 127)
-        add_good = random.randint(110, add_total)
-        add_downtime = random.uniform(0, 1)
-
-        self.total_count += add_total
-        self.good_count += add_good
-        self.downtime += add_downtime
 
     def update_oee(self):
         current_time = datetime.now()
