@@ -482,7 +482,7 @@ class Dashboard(QMainWindow):
             except Exception as e:
                 pass
 
-            time.sleep(1)
+            time.sleep(90)
 
     def create_default_config_if_missing(self,json_path):
         if not os.path.exists(json_path):
