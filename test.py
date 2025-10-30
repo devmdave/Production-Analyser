@@ -22,10 +22,10 @@ from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget
 from dashboard_parameter_manager import ParameterManagerWindow
 from TagManager import TagManagerWindow
 from Dialog import *
+from OEE_config_dialog import ConfigDialog
 import os
 import pandas as pd
 import my_plc
-import time
 from Graph import GraphPlotter
 from summary_card import SummaryCard
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -146,7 +146,7 @@ class Dashboard(QMainWindow):
 
         self._init_ui()
         self._init_timers()
-        self.param_thread = threading.Thread(target=self._update_parameters)
+        self.param_thread = threading.Thread(target=self._update_parameters,daemon=True)
         self.param_thread.start()
         self._log("Dashboard initialized.")
 
@@ -155,7 +155,6 @@ class Dashboard(QMainWindow):
     
     def mock_plc_init(self):
         self.plc =  pycomm3()
-
 
     def _init_ui(self):
         try:
@@ -230,7 +229,19 @@ class Dashboard(QMainWindow):
         self.oee_label.setFont(QFont("Segoe UI", 15))
         self.oee_label.setAlignment(Qt.AlignCenter)
         self.oee_label.setFixedWidth(220)
-        oee_box = self._create_info_box("O.E.E (%)", self.oee_label)
+        oee_box = QFrame()
+        oee_box.setFrameShape(QFrame.StyledPanel)
+        oee_layout = QVBoxLayout()
+        oee_title = QLabel("O.E.E (%)")
+        oee_title.setFont(QFont("Segoe UI", 10, QFont.Bold))
+        oee_title.setAlignment(Qt.AlignCenter)
+        oee_layout.addWidget(oee_title)
+        oee_layout.addWidget(self.oee_label)
+        self.more_info_btn = QPushButton("Show More Info")
+        self.more_info_btn.setFont(QFont("Segoe UI", 10))
+        self.more_info_btn.clicked.connect(self.show_more_info)
+        oee_layout.addWidget(self.more_info_btn)
+        oee_box.setLayout(oee_layout)
         oee_box.setFixedWidth(250)
         info_panel.addWidget(oee_box)
 
@@ -424,7 +435,7 @@ class Dashboard(QMainWindow):
 
             self._log(f"Parameters updated from config.json, O.E.E={oee:.1f}%")
             print("updating OEE every sec")
-            time.sleep(90)
+            time.sleep(1)
 
     def create_default_config_if_missing(self,json_path):
         if not os.path.exists(json_path):
@@ -481,6 +492,7 @@ class Dashboard(QMainWindow):
         self.edit_dashboard_tag_action = QAction("Dashboard Tag",self)
         self.set_backup_time = QAction("Set New Backup Time", self)
         self.get_backup_time = QAction("Show Saved Backup Time", self)
+        self.oee_config_action = QAction("OEE Configuration", self)
 
 
 
@@ -502,6 +514,7 @@ class Dashboard(QMainWindow):
         
         setting_menu.addAction(self.get_backup_time)
         setting_menu.addAction(self.set_backup_time)
+        setting_menu.addAction(self.oee_config_action)
 
         self.view_current_cycle_action.triggered.connect(lambda: (self.cycletime_current_layout(), self.start_task()))
         self.view_cycle_action.triggered.connect(lambda: self.cycletime_backup_layout())
@@ -515,6 +528,7 @@ class Dashboard(QMainWindow):
         self.edit_tipchange_tag_action.triggered.connect(lambda: self.edit_tip_change_tags())
         self.edit_tipdress_tag_action.triggered.connect(lambda:self.edit_tip_dress_tags())
         self.edit_dashboard_tag_action.triggered.connect(lambda:self.edit_dashboard_tags())
+        self.oee_config_action.triggered.connect(lambda: self.show_oee_config())
 
     def _get_stylesheet(self):
         if self.dark_mode:
@@ -1062,6 +1076,14 @@ class Dashboard(QMainWindow):
         if selected_file:
             self.fault_window = CurrentFaultDelay(backup_file=selected_file)
             self.fault_window.show()
+
+    def show_more_info(self):
+        self.oee_dashboard = OEEDashboard()
+        self.oee_dashboard.show()
+
+    def show_oee_config(self):
+        self.config_dialog = ConfigDialog()
+        self.config_dialog.show()
 
 
 def main():
