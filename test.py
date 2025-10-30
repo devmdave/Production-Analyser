@@ -566,7 +566,7 @@ class Dashboard(QMainWindow):
         self.view_current_fault_action.triggered.connect(lambda: self.show_current_fault_delay())
         self.view_backup_fault_action.triggered.connect(lambda: self.show_backup_fault_delay())
         self.set_backup_time.triggered.connect(lambda: self.dlg.show()) #Placeholder action
-        self.get_backup_time.triggered.connect(lambda: self.label.setText("Get Backup Time") ) #Placeholder action
+        self.get_backup_time.triggered.connect(lambda: self.dlg.show())
         self.edit_cycletime_tag_action.triggered.connect(lambda: self.edit_cycle_time_tags())
         self.edit_faultdelay_tag_action.triggered.connect(lambda: self.edit_fault_delay_tags())
         self.edit_stationfault_tag_action.triggered.connect(lambda: self.edit_station_fault_tags())
