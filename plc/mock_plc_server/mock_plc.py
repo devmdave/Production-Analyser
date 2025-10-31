@@ -118,6 +118,9 @@ class pycomm3:
             tags_data[labels[index]] = random.randint(0,100)
         
         return tags_data
+    
+    def get_plc_status(self):
+        return True  # Simulate PLC is always connected
 # Usage
 plc = pycomm3()
 tag_data = plc.read_dashboard_tags()

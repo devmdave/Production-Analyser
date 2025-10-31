@@ -60,6 +60,78 @@ qss = """
         }
         """
 
+
+class WorkerThread(QThread):
+    finished = pyqtSignal()
+    def run(self):
+        try:
+            print("trying to connect")
+            plc = my_plc.Plc('192.168.0.10')
+            tags_data = plc.read_cycletime_tags()
+            dw = my_plc.data_writer()
+            dw.write_to_excel(tags_data,dw.CYCLETIME_BACKUP_DIR)
+        except Exception as e:
+            print("Exception occured in Worker Thread:\n" + str(e))
+
+        self.finished.emit()
+
+class CustomTimeEdit(QTimeEdit):
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Backspace, Qt.Key_Delete):
+            # Ignore Backspace and Delete
+            print("Blocked key:", event.key())
+            return
+        super().keyPressEvent(event)
+
+class BackupTimeDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.setWindowTitle("Saved Backup Time")
+        self.setWindowIcon(QIcon("icon.png"))
+        self.setModal(True)
+
+        layout = QVBoxLayout(self)
+
+        backup_time = os.getenv("PRODUCTION_BACKUP_TIME")
+        if backup_time:
+            time_text = f"{backup_time}"
+        else:
+            time_text = "No Backup time is set.\nNo data will be backed up automatically."
+
+        label = QLabel(time_text)
+        label.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label)
+
+        # Apply theme stylesheet
+        self.setStyleSheet(self._get_stylesheet())
+
+    def _get_stylesheet(self):
+        if self.parent and hasattr(self.parent, 'dark_mode') and self.parent.dark_mode:
+            return """
+                QWidget {
+                    background-color: #34495e;
+                    color: #ecf0f1;
+                    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                }
+                QLabel {
+                    color: #ecf0f1;
+                }
+            """
+        else:
+            return """
+                QWidget {
+                    background-color: #FFFFFF;
+                    color: #002A4D;
+                    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                }
+                QLabel {
+                    color: #002A4D;
+                }
+            """
+
+
 class Dashboard(QMainWindow):
     def __init__(self, which_plc):
         super().__init__()
@@ -342,8 +414,6 @@ class Dashboard(QMainWindow):
         self.timer.start(1000)
         self._update_time()
 
-        # self._update_plc_status()
-
     def _update_time(self):
         now = QTime.currentTime()
         self.time_label.setText(now.toString("hh:mm:ss AP"))
@@ -359,7 +429,7 @@ class Dashboard(QMainWindow):
 
     def _update_plc_status(self):
         try:
-            self.plc_connected = not self.plc_connected
+            self.plc_connected = self.plc.get_plc_status()
             if self.plc_connected:
                 self.plc_status_label.setText("Connected")
                 self.plc_status_label.setStyleSheet("color: white; background-color: #008000; border-radius: 0px; padding: 4px 8px;")
@@ -367,13 +437,14 @@ class Dashboard(QMainWindow):
             else:
                 self.plc_status_label.setText("Disconnected")
                 self.plc_status_label.setStyleSheet("color: white; background-color: #FF0000; border-radius: 0px; padding: 4px 8px;")
-                self._log("PLC disconnected.")
+                self._log("Attempt to PLC connection failed or PLC disconnected.")
         except Exception as e:
             pass
 
     def _update_parameters(self):
         while True:
             self._update_backup_time()
+            self._update_plc_status()
             plc_res = self.plc.read_dashboard_tags()
             # Update parameter values from JSON or simulate if no value provided
             with open('config/plc_custom_user_tags/dashboard_tags.json', 'r') as f:
@@ -731,6 +802,29 @@ class Dashboard(QMainWindow):
         numeric_columns = df.select_dtypes(include=["int64", "float64"]).columns
         df[numeric_columns] = (df[numeric_columns] - (cycle_time)).clip(lower=0)
 
+
+    def start_task(self):
+        dg = self.Dialog.show_progress_dialog()
+        self.thread = WorkerThread()
+        self.thread.finished.connect(lambda: self.load_plc_data_now(dg))
+        self.thread.start()
+    
+    def load_plc_data_now(self,dg): 
+        today_str = datetime.now().strftime('%d-%m-%Y')
+        self.file_path = f'./CycleTimeBackup/{today_str}.xlsx'
+        response = self.load_data_to_veiw()
+        dg.close()
+
+        self.Dialog = Dialog()
+        if response == MyWindow.EMPTY_DATAFRAME:
+            self.Dialog.show_no_tags_error()
+        elif response == MyWindow.LOAD_DATA_FAILED:
+            self.Dialog.show_file_not_found_error()
+        elif response == MyWindow.LOAD_DATA_SUCCESS:
+            self.Dialog.show_success_data_loaded()
+
+
+
     def highlight_max_values(self, model):
         rows = model.rowCount()
         cols = model.columnCount()
@@ -842,7 +936,7 @@ class Dashboard(QMainWindow):
 
         # Create back button to go to dashboard
         back_button = QPushButton("Back")
-        back_button.clicked.connect(lambda: self.reinitialize_dashboard())
+        back_button.clicked.connect(lambda: self.initialise_dashboard())
 
         # Create graph button to show graph
         self.graph_button = QPushButton("Show Pie Chart Analysis")
@@ -1003,3 +1097,26 @@ class Dashboard(QMainWindow):
         table.verticalHeader().setVisible(False)
         # Adjust column widths
         table.resizeColumnsToContents()
+
+    def show_current_fault_delay(self):
+        self.fault_window = CurrentFaultDelay()
+        self.fault_window.show()
+
+    def on_fault_selected(self, selected_file):
+        if selected_file:
+            self.fault_window = CurrentFaultDelay(backup_file=selected_file)
+            self.fault_window.show()
+
+
+    def show_backup_fault_delay(self):
+        files = os.listdir("data/backups/FaultDelayBackup") if os.path.exists("data/backups/FaultDelayBackup") else []
+        dialog = CustomListViewDialog(files, on_accept_callback=self.on_fault_selected)
+        dialog.exec_()
+
+    def show_more_info(self):
+        self.oee_dashboard = OEEDashboard()
+        self.oee_dashboard.show()
+
+    def show_oee_config(self):
+        self.config_dialog = ConfigDialog()
+        self.config_dialog.show()

@@ -25,6 +25,8 @@ class Plc:
                 # self.disconnect()
         except Exception as e:
             self.plc_status = False
+    
+
 
     def read_cycletime_tags(self):
         print("reading cycle time tags line 27 of my_plc.py ")
