@@ -79,7 +79,7 @@ def update_last_backtime():
 # Function to save PLC data to an Excel file
  # This function takes a dictionary of PLC data, converts it to a pandas DataFrame, and saves it to an Excel file named 'data.xlsx'.
 def save_to_excel(tags_data):
-    os.makedirs("CycleTimeBackup", exist_ok=True)
+    os.makedirs("data/backups/CycleTimeBackup", exist_ok=True)
     # Convert dictionary to DataFrame
     df = pd.DataFrame(tags_data)
     df.index = range(1, len(df) + 1)
@@ -87,7 +87,7 @@ def save_to_excel(tags_data):
     df = df.transpose()
     #get todays date in the format 'dd-mm-yyyy'
     today_str = datetime.datetime.now().strftime('%d-%m-%Y')
-    with pd.ExcelWriter(f'./CycleTimeBackup/{today_str}.xlsx') as writer:
+    with pd.ExcelWriter(f'./data/backups/CycleTimeBackup/{today_str}.xlsx') as writer:
         df.to_excel(writer, sheet_name=today_str, index=True)
     
     update_last_backtime()

@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QTime, QTimer, Qt
 from PyQt5.QtGui import QFont, QIcon
 
-from oee_calculator import OEECalculator
-from OEE_config_dialog import ConfigDialog
+from plc.oee_calculator import OEECalculator
+from gui.dialogs.oee_config_dialog import ConfigDialog
 
 class OEEDashboard(QMainWindow):
     def __init__(self):

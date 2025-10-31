@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
     QTimeEdit,
 )
 from PyQt5.QtCore import Qt
-from Dialog import *
+from gui.dialogs.dialog import *
 import pandas as pd
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -43,7 +43,8 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QFrame, QSizePolicy, QSpacerItem,QAction
 )
-import my_plc,time, datetime
+import plc.my_plc as my_plc
+import time, datetime
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
 

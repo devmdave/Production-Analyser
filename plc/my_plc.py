@@ -6,7 +6,7 @@ import os
 import pandas as pd
 import datetime
 import json
-from Dialog import Dialog
+from gui.dialogs.dialog import Dialog
 from PyQt5.QtWidgets import QApplication, QDialog
 
 
@@ -31,7 +31,7 @@ class Plc:
         # step-1 : read the json
         tags_data = {}
         try:
-            file_path = "plc_custom_user_tags\\cycle_time_tags.json"
+            file_path = "config/plc_custom_user_tags/cycle_time_tags.json"
             with open(file_path, "r") as file:
                 data = json.load(file)
 
@@ -57,7 +57,7 @@ class Plc:
         # step-1 : read the json
         tags_data = {}
         try:
-            file_path = "plc_custom_user_tags\\fault_delay_tags.json"
+            file_path = "config/plc_custom_user_tags/fault_delay_tags.json"
             with open(file_path, "r") as file:
                 data = json.load(file)
 
@@ -111,7 +111,7 @@ class Plc:
 
     def read_dashboard_tags(self):
         try:
-            with open('plc_custom_user_tags\\dashboard_tags.json', 'r') as f:
+            with open('config/plc_custom_user_tags/dashboard_tags.json', 'r') as f:
                 data = json.load(f)
 
             parameters = data.get('parameters', [])
@@ -138,7 +138,7 @@ class Plc:
         # step-1 : read the json
         tags_data = {}
         try:
-            file_path = "plc_custom_user_tags\\station_fault_tags.json"
+            file_path = "config/plc_custom_user_tags/station_fault_tags.json"
             with open(file_path, "r") as file:
                 data = json.load(file)
 
@@ -167,7 +167,7 @@ class Plc:
         # step-1 : read the json
         tags_data = {}
         try:
-            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            file_path = "config/plc_custom_user_tags/tip_dress_tags.json"
             with open(file_path, "r") as file:
                 data = json.load(file)
 
@@ -196,7 +196,7 @@ class Plc:
         # step-1 : read the json
         tags_data = {}
         try:
-            file_path = "plc_custom_user_tags\\tip_dress_tags.json"
+            file_path = "config/plc_custom_user_tags/tip_dress_tags.json"
             with open(file_path, "r") as file:
                 data = json.load(file)
 
@@ -226,12 +226,12 @@ class Plc:
         tags_data = {}
         try:
             # Read set_names_tags.json
-            set_file_path = "plc_custom_user_tags\\set_names_tags.json"
+            set_file_path = "config/plc_custom_user_tags/set_names_tags.json"
             with open(set_file_path, "r") as file:
                 set_data = json.load(file)
 
             # Read actual_names_tags.json
-            actual_file_path = "plc_custom_user_tags\\actual_names_tags.json"
+            actual_file_path = "config/plc_custom_user_tags/actual_names_tags.json"
             with open(actual_file_path, "r") as file:
                 actual_data = json.load(file)
 
@@ -279,11 +279,11 @@ class Plc:
 
 class data_writer:
 
-    FAULT_DELAY_BACKUP_DIR = "FaultDelayBackup"
-    CYCLETIME_BACKUP_DIR = "CycleTimeBackup"
-    STATION_FAULT_DIR = "StationFaultBackup"
-    TIP_DRESS_COUNT_DIR = "TipDressCountBackup"
-    LAST_TIP_DRESS_DIR = "LastTipDressBackup"
+    FAULT_DELAY_BACKUP_DIR = "data/backups/FaultDelayBackup"
+    CYCLETIME_BACKUP_DIR = "data/backups/CycleTimeBackup"
+    STATION_FAULT_DIR = "data/backups/StationFaultBackup"
+    TIP_DRESS_COUNT_DIR = "data/backups/TipDressCountBackup"
+    LAST_TIP_DRESS_DIR = "data/backups/LastTipDressBackup"
 
     def __init__(self):
         pass

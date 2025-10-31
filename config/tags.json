@@ -1,0 +1,7 @@
+{
+  "tags": [
+    {"tag": "Tag1", "label": "Label1"},
+    {"tag": "Tag2", "label": "Label2"},
+    {"tag": "Tag3", "label": "Label3"}
+  ]
+}

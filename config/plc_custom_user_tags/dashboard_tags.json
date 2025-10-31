@@ -1,0 +1,36 @@
+{
+    "parameters": [
+        {
+            "name": "param1",
+            "value": "value1"
+        },
+        {
+            "name": "param2",
+            "value": "value2"
+        },
+        {
+            "name": "param3",
+            "value": "value3"
+        },
+        {
+            "name": "param4",
+            "value": "value4"
+        },
+        {
+            "name": "param5",
+            "value": "value5"
+        },
+        {
+            "name": "param6",
+            "value": "value6"
+        },
+        {
+            "name": "param7",
+            "value": "value7"
+        },
+        {
+            "name": "param8",
+            "value": "value8"
+        }
+    ]
+}

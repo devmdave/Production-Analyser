@@ -1,53 +1,18 @@
 import os
-from TagManager import TagManagerWindow
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
+from gui.dialogs.tag_manager import TagManagerWindow
 from PyQt5.QtWidgets import (
-    QMainWindow,
-    QTableWidget,
-    QTableWidgetItem,
-    QVBoxLayout,
-    QHBoxLayout,
-    QWidget,
-    QLabel,
-    QLineEdit,
+    QSpacerItem, QSizePolicy, QMainWindow, QTableWidget, QTableWidgetItem,
+    QVBoxLayout, QHBoxLayout, QWidget, QLabel, QLineEdit, QListView,
+    QProgressDialog, QTimeEdit, QAction, QApplication, QPushButton,
+    QFrame, QMessageBox
 )
-from PyQt5.QtGui import QFont, QColor
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import Qt, QTimer, QDateTime
-from PyQt5.QtWidgets import QListView, QWidget, QVBoxLayout, QLabel,QProgressDialog
-from PyQt5.QtCore import QStringListModel
-from PyQt5.QtWidgets import (
-    QMainWindow,
-    QTimeEdit,
-)
-from PyQt5.QtCore import Qt
-from Dialog import *
+from PyQt5.QtGui import QFont, QColor, QPixmap, QIcon
+from PyQt5.QtCore import Qt, QTimer, QDateTime, QStringListModel, QThread, pyqtSignal
+from gui.dialogs.dialog import Dialog, BackupTimeDialog
 import pandas as pd
-from PyQt5.QtWidgets import (
-    QMainWindow,
-    QAction,
-    QLabel,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QSpacerItem,
-    QSizePolicy,
-)
-
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QSpacerItem, QSizePolicy
-)
-from PyQt5.QtGui import QFont, QPixmap, QIcon
-from PyQt5.QtCore import Qt
-
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QFrame, QSizePolicy, QSpacerItem,QAction
-)
-import my_plc,time, datetime
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox
-from summary_card import SummaryCard
+from plc import my_plc
+import time, datetime
+from gui.widgets.summary_card import SummaryCard
 
 class WorkerThread(QThread):
     finished = pyqtSignal()
@@ -124,12 +89,12 @@ class MyWindow(QMainWindow):
         self.file_path = "production.xlsx"
         self.Dialog = Dialog()
         self.dlg = BackupTimeDialog()
-        edit_cyctime_win = TagManagerWindow(json_path="plc_custom_user_tags\\cycle_time_tags.json")
-        edit_fault_delay_win = TagManagerWindow(json_path="plc_custom_user_tags\\station_fault_tags.json")
-        edit_station_fault_win = TagManagerWindow(json_path="plc_custom_user_tags\\fault_delay_tags.json")
-        edit_tip_dress_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
-        edit_tip_change_win = TagManagerWindow(json_path="plc_custom_user_tags\\tip_dress_tags.json")
-        edit_dashboard_win = TagManagerWindow(json_path="plc_custom_user_tags\\dashboard_tags.json")
+        edit_cyctime_win = TagManagerWindow(json_path="config/plc_custom_user_tags/cycle_time_tags.json")
+        edit_fault_delay_win = TagManagerWindow(json_path="config/plc_custom_user_tags/station_fault_tags.json")
+        edit_station_fault_win = TagManagerWindow(json_path="config/plc_custom_user_tags/fault_delay_tags.json")
+        edit_tip_dress_win = TagManagerWindow(json_path="config/plc_custom_user_tags/tip_dress_tags.json")
+        edit_tip_change_win = TagManagerWindow(json_path="config/plc_custom_user_tags/tip_dress_tags.json")
+        edit_dashboard_win = TagManagerWindow(json_path="config/plc_custom_user_tags/dashboard_tags.json")
         
         # Create central widget and main layout
         self.central_widget = QWidget()
@@ -323,8 +288,8 @@ class MyWindow(QMainWindow):
         self.setGeometry(100, 100, 500, 600)
 
         files = (
-            os.listdir("CycleTimeBackup")
-            if os.path.exists("CycleTimeBackup")
+            os.listdir("data/backups/CycleTimeBackup")
+            if os.path.exists("data/backups/CycleTimeBackup")
             else self.Dialog.show_error_dialog()
         )
 
@@ -373,7 +338,7 @@ class MyWindow(QMainWindow):
 
     def list_view_item_clicked(self, index):
         self.cycletime_current_layout()
-        self.file_path = "./CycleTimeBackup/" + self.model.data(index, 0)+ ".xlsx"
+        self.file_path = "./data/backups/CycleTimeBackup/" + self.model.data(index, 0)+ ".xlsx"
         self.file_name_label.setText(f"Record Dated: {self.model.data(index,0)}")
         self.load_data_to_veiw()
 
@@ -643,7 +608,7 @@ class MyWindow(QMainWindow):
     
     def load_plc_data_now(self,dg): 
         today_str = datetime.datetime.now().strftime('%d-%m-%Y')
-        self.file_path = f'./CycleTimeBackup/{today_str}.xlsx'
+        self.file_path = f'./data/backups/CycleTimeBackup/{today_str}.xlsx'
         response = self.load_data_to_veiw()
         dg.close()
 

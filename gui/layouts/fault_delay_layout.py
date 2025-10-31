@@ -8,12 +8,12 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont, QColor, QIcon
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
-from Dialog import Dialog
-import my_plc
+from gui.dialogs.dialog import Dialog
+import plc.my_plc as my_plc
 import threading
 import datetime
 import time
-from MockPLCServer.mock_plc import pycomm3
+from plc.mock_plc_server.mock_plc import pycomm3
 
 custom_headers = ['Faults', 'Delay']
 custom_headers2 = ['Station', 'Fault Delay']
