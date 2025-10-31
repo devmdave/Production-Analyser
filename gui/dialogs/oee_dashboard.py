@@ -16,7 +16,7 @@ class OEEDashboard(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Detailed OEE Information - Production Analyser")
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.setFixedSize(400, 400)
         self.center()
         self.setStyleSheet("""

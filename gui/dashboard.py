@@ -88,7 +88,7 @@ class BackupTimeDialog(QDialog):
         super().__init__(parent)
         self.parent = parent
         self.setWindowTitle("Saved Backup Time")
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.setModal(True)
 
         layout = QVBoxLayout(self)

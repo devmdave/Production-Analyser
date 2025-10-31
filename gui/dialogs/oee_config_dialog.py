@@ -14,7 +14,7 @@ class ConfigDialog(QDialog):
         super().__init__(parent)
         self.config_file = config_file
         self.setWindowTitle("OEE Configuration")
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.setFixedSize(600, 500)
         self.center()
         self.layout = QVBoxLayout(self)

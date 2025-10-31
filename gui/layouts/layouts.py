@@ -84,7 +84,7 @@ class MyWindow(QMainWindow):
         self.setWindowTitle("Production Analyser")
         self.setFixedSize(1200,600)
         self.setGeometry(100, 100, 1200, 600)
-        self.setWindowIcon(QIcon("icon.png"))  # Repla
+        self.setWindowIcon(QIcon("assets/icon.png"))  # Repla
         self.cycle_time = 0
         self.file_path = "production.xlsx"
         self.Dialog = Dialog()

@@ -6,7 +6,7 @@ class CustomListViewDialog(QDialog):
     def __init__(self, items, title="Select an Item", parent=None):
         super().__init__(parent)
         self.setWindowTitle(title)
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.selected_item = None
 
         layout = QVBoxLayout(self)

@@ -125,7 +125,7 @@ class CurrentFaultDelay(QMainWindow):
         super().__init__()
         self.dark_mode = True
         self.setWindowTitle("Production Analyser")
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.setGeometry(100, 100, 900, 400)  # Decreased window size
 
         # --- File name label at the top ---
