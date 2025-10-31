@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QLineEdit, QDialogButtonBox
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 
 class ParameterDialog(QDialog):
     def __init__(self, parent=None):
@@ -46,6 +47,7 @@ class ParameterManagerWindow(QMainWindow):
         super().__init__()
         self.json_path = json_path
         self.setWindowTitle("Parameter Manager")
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.resize(500, 400)
 
         self._load_data()

@@ -5,12 +5,14 @@ from PyQt5.QtWidgets import (
     QDialog, QLabel, QLineEdit, QPushButton,
     QVBoxLayout, QHBoxLayout, QApplication, QMessageBox
 )
+from PyQt5.QtGui import QIcon
 
 class CustomTagDialog(QDialog):
     def __init__(self, json_path="tags.json", parent=None):
         super().__init__(parent)
         self.json_path = json_path
         self.setWindowTitle("Enter Tag Details")
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.setFixedSize(320, 160)
 
         # Widgets

@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QHBoxLayout, QWidget, QLabel, QHeaderView, QPushButton, QMessageBox
 )
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor, QIcon
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from gui.dialogs.dialog import Dialog
 import plc.my_plc as my_plc
@@ -124,6 +124,7 @@ class TipDressTagWindow(QMainWindow):
         super().__init__()
         self.dark_mode = True
         self.setWindowTitle("Production Analyser")
+        self.setWindowIcon(QIcon("assets/icon.png"))
         self.setGeometry(100, 100, 900, 400)  # Decreased window size
 
         # --- File name label at the top ---
